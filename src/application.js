@@ -546,15 +546,19 @@ dwv.App = function()
             event._xs = offsets[0].x;
             event._ys = offsets[0].y;
             position = self.getImageLayer().displayToIndex( offsets[0] );
-            event._x = parseInt( position.x, 10 );
-            event._y = parseInt( position.y, 10 );
+            event._x = position.x;
+            event._y = position.y;
+            //event._x = parseInt( position.x, 10 );
+            //event._y = parseInt( position.y, 10 );
             // possible second
             if ( offsets.length === 2 ) {
                 event._x1s = offsets[1].x;
                 event._y1s = offsets[1].y;
                 position = self.getImageLayer().displayToIndex( offsets[1] );
-                event._x1 = parseInt( position.x, 10 );
-                event._y1 = parseInt( position.y, 10 );
+                event._x1 = position.x;
+                event._y1 = position.y;
+                //event._x1 = parseInt( position.x, 10 );
+                //event._y1 = parseInt( position.y, 10 );
             }
             // set handle event flag
             handled = true;
@@ -571,8 +575,10 @@ dwv.App = function()
             event._xs = offsets[0].x;
             event._ys = offsets[0].y;
             position = self.getImageLayer().displayToIndex( offsets[0] );
-            event._x = parseInt( position.x, 10 );
-            event._y = parseInt( position.y, 10 );
+            event._x = position.x;
+            event._y = position.y;
+            //event._x = parseInt( position.x, 10 );
+            //event._y = parseInt( position.y, 10 );
             // set handle event flag
             handled = true;
         }

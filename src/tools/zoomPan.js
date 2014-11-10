@@ -246,7 +246,25 @@ dwv.tool.ZoomAndPan = function(app)
             var stage = app.getDrawStage();
             var oldKZoom = stage.scale();
             var newKZoom = {'x': (oldKZoom.x + step), 'y': (oldKZoom.y + step)};
-            
+
+            /* */
+            var layer = stage.children[0];
+            var group = layer.children[0];
+
+            for (var g = 0; g < layer.children.length; ++g) {
+                var group = layer.children[g];
+                for (var i = 0; i < group.children.length; ++i) {
+                    if (group.children[i] instanceof Kinetic.Text) {
+                        console.log(newKZoom.x / oldKZoom.x);
+                        //group.children[i].fontSize(group.children[i].fontSize() * oldKZoom.x / newKZoom.x);
+                        group.children[i].fontSize(20 / newKZoom.x);
+                    }
+
+                    else if (group.children[i] instanceof Kinetic.Line) {
+                        group.children[i].strokeWidth(3 / newKZoom.x);
+                    }
+                }
+            }
             var oldOffset = stage.offset();
             var newOffsetX = (cx2 / oldKZoom.x) + oldOffset.x - (cx2 / newKZoom.x);
             var newOffsetY = (cy2 / oldKZoom.y) + oldOffset.y - (cy2 / newKZoom.y);

@@ -17,12 +17,14 @@ dwv.tool.LineCreator = function (points, style, image)
 {
     // physical object
     var line = new dwv.math.Line(points[0], points[points.length-1]);
+    if (!line)
+    return;
     // shape
     var kline = new Kinetic.Line({
         points: [line.getBegin().getX(), line.getBegin().getY(), 
                  line.getEnd().getX(), line.getEnd().getY() ],
         stroke: style.getLineColor(),
-        strokeWidth: 2,
+        strokeWidth: 3 / app.getDrawStage().scale().x,
         name: "shape"
     });
     // quantification
@@ -32,7 +34,7 @@ dwv.tool.LineCreator = function (points, style, image)
         x: line.getEnd().getX(),
         y: line.getEnd().getY() - 15,
         text: str,
-        fontSize: style.getFontSize(),
+        fontSize: 20 / app.getDrawStage().scale().x,
         fontFamily: "Verdana",
         fill: style.getLineColor(),
         name: "text"

@@ -7,6 +7,13 @@ body { font-family: Verdana, Arial, Helvetica, sans-serif; }
 #dropBox { border: 5px dashed #ccc; }
 #dropBox.hover { border: 5px dashed #cc0; }
 
+/* Layers */
+#layerContainer_med { position: relative; padding: 0; }
+#imageLayer_med { position: absolute; }
+#drawDiv_med { position: absolute; pointer-events: none; }
+#dropBox_med { border: 5px dashed #ccc; }
+#dropBox_med.hover { border: 5px dashed #cc0; }
+
 /* Info */
 #infotl { position: absolute; top: 0; left: 0; text-align: left; }
 #infotr { position: absolute; top: 0; right: 0; text-align: right; }
@@ -15,6 +22,15 @@ body { font-family: Verdana, Arial, Helvetica, sans-serif; }
 #plot { position: absolute; width: 100px; height: 50px; bottom: 15px; }
 #infoLayer ul { margin: 0; padding: 2px; list-style-type: none; }
 #infoLayer canvas { margin: 0; padding: 2px; }
+
+/* Info */
+#infotl_med { position: absolute; top: 0; left: 0; text-align: left; }
+#infotr_med { position: absolute; top: 0; right: 0; text-align: right; }
+#infobl_med { position: absolute; bottom: 0; left: 0; text-align: left; }
+#infobr_med { position: absolute; bottom: 0; right: 0; text-align: right; }
+#plot_med { position: absolute; width: 100px; height: 50px; bottom: 15px; }
+#infoLayer_med ul { margin: 0; padding: 2px; list-style-type: none; }
+#infoLayer_med canvas { margin: 0; padding: 2px; }
 
 /* Tag list */
 table.tagList { border-collapse: collapse; }

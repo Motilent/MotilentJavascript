@@ -8,11 +8,20 @@ var Kinetic = Kinetic || {};
  * @class App
  * @namespace dwv
  * @constructor
+ * @param {string} type The type of application ( 'motility'/'median' )
  */
-dwv.App = function()
+dwv.App = function(type)
 {
     // Local object
     var self = this;
+
+    var appType = type;
+    if (! (appType == 'motility' || appType == 'median'))
+        throw "Unknown appType " + appType;
+    var appExt = "";
+    if (appType == 'median')
+        appExt = '_med';
+
     // Image
     var image = null;
     // View
@@ -113,6 +122,15 @@ dwv.App = function()
     this.getDrawLayer = function() { 
         return drawLayers[view.getCurrentPosition().k];
     };
+
+    /**
+     * Get the draw layer array
+     * @method getDrawLayers
+     * @return {Array} The draw layer array.
+     */
+    this.getDrawLayers = function(){
+        return drawLayers;
+    };
     /** 
      * Get the draw stage.
      * @method getDrawStage
@@ -135,7 +153,7 @@ dwv.App = function()
         // align layers when the window is resized
         window.onresize = this.resize;
         // listen to drag&drop
-        var box = document.getElementById("dropBox");
+        var box = document.getElementById("dropBox"+appExt);
         if ( box ) {
             box.addEventListener("dragover", onDragOver);
             box.addEventListener("dragleave", onDragLeave);
@@ -143,8 +161,8 @@ dwv.App = function()
             // initial size
             var size = dwv.gui.getWindowSize();
             var dropBoxSize = 2 * size.height / 3;
-            $("#dropBox").height( dropBoxSize );
-            $("#dropBox").width( dropBoxSize );
+            $("#dropBox"+appExt).height( dropBoxSize );
+            $("#dropBox"+appExt).width( dropBoxSize );
         }
         // possible load from URL
         if( typeof skipLoadUrl === "undefined" ) {
@@ -164,8 +182,13 @@ dwv.App = function()
      */
     this.reset = function()
     {
-        // clear tools
-        toolBox.reset();
+        if (appType=='motility') {
+            // clear tools
+            toolBox.reset();
+            // clear undo/redo
+            undoStack = new dwv.tool.UndoStack();
+            dwv.gui.cleanUndoHtml();
+        }
         // clear draw
         if ( drawStage ) {
             drawLayers = [];
@@ -173,9 +196,7 @@ dwv.App = function()
         // clear objects
         image = null;
         view = null;
-        // clear undo/redo
-        undoStack = new dwv.tool.UndoStack();
-        dwv.gui.cleanUndoHtml();
+
     };
     
     /**
@@ -237,11 +258,28 @@ dwv.App = function()
         var fileIO = new dwv.io.File();
         fileIO.onload = function (data) {
             var isFirst = true;
+
             if( image ) {
                 image.appendSlice( data.view.getImage() );
                 isFirst = false;
             }
-            postLoadInit(data);
+            else{
+                medianViewer.reset();
+                medianViewer.postLoadInit(data);
+                if( medianViewer.getDrawStage() ) {
+                    // create slice draw layer
+                    var drawLayer = new Kinetic.Layer({
+                        listening: false,
+                        hitGraphEnabled: false,
+                        visible: isFirst
+                    });
+                    // add to layers array
+                    medianViewer.getDrawLayers().push(drawLayer);
+                    // add the layer to the stage
+                    medianViewer.getDrawStage().add(drawLayer);
+                }
+            }
+            self.postLoadInit(data);
             if( drawStage ) {
                 // create slice draw layer
                 var drawLayer = new Kinetic.Layer({
@@ -364,8 +402,8 @@ dwv.App = function()
         var mul = newWidth / oldWidth;
 
         // resize container
-        $("#layerContainer").width(newWidth);
-        $("#layerContainer").height(newHeight + 1); // +1 to be sure...
+        $("#layerContainer"+appExt).width(newWidth);
+        $("#layerContainer"+appExt).height(newHeight + 1); // +1 to be sure...
         // resize image layer
         if( imageLayer ) {
             var iZoomX = imageLayer.getZoom().x * mul;
@@ -378,8 +416,8 @@ dwv.App = function()
         // resize draw stage
         if( drawStage ) {
             // resize div
-            $("#drawDiv").width(newWidth);
-            $("#drawDiv").height(newHeight);
+            $("#drawDiv"+appExt).width(newWidth);
+            $("#drawDiv"+appExt).height(newHeight);
             // resize stage
             var stageZomX = drawStage.scale().x * mul;
             var stageZoomY = drawStage.scale().y * mul;
@@ -397,7 +435,7 @@ dwv.App = function()
     this.toggleInfoLayerDisplay = function()
     {
         // toggle html
-        dwv.html.toggleDisplay('infoLayer');
+        dwv.html.toggleDisplay('infoLayer'+appExt);
         // toggle listeners
         if( isInfoLayerListening ) {
             removeImageInfoListeners();
@@ -497,6 +535,8 @@ dwv.App = function()
      */
     function addImageInfoListeners()
     {
+        view.appExt = appExt;
+        view.appType = appType;
         view.addEventListener("wlchange", dwv.info.updateWindowingDiv);
         view.addEventListener("wlchange", dwv.info.updateMiniColorMap);
         view.addEventListener("wlchange", dwv.info.updatePlotMarkings);
@@ -512,6 +552,7 @@ dwv.App = function()
      */
     function removeImageInfoListeners()
     {
+        view.appExt= appExt;
         view.removeEventListener("wlchange", dwv.info.updateWindowingDiv);
         view.removeEventListener("wlchange", dwv.info.updateMiniColorMap);
         view.removeEventListener("wlchange", dwv.info.updatePlotMarkings);
@@ -611,7 +652,7 @@ dwv.App = function()
         event.stopPropagation();
         event.preventDefault();
         // update box 
-        var box = document.getElementById("dropBox");
+        var box = document.getElementById("dropBox"+appExt);
         if ( box ) {
             box.className = 'hover';
         }
@@ -629,7 +670,7 @@ dwv.App = function()
         event.stopPropagation();
         event.preventDefault();
         // update box 
-        var box = document.getElementById("dropBox");
+        var box = document.getElementById("dropBox"+appExt);
         if ( box ) {
             box.className = '';
         }
@@ -681,15 +722,15 @@ dwv.App = function()
     function createLayers(dataWidth, dataHeight)
     {
         // image layer
-        imageLayer = new dwv.html.Layer("imageLayer");
+        imageLayer = new dwv.html.Layer("imageLayer"+appExt);
         imageLayer.initialise(dataWidth, dataHeight);
         imageLayer.fillContext();
         imageLayer.setStyleDisplay(true);
         // draw layer
-        if( document.getElementById("drawDiv") !== null) {
+        if( document.getElementById("drawDiv"+appExt) !== null) {
             // create stage
             drawStage = new Kinetic.Stage({
-                container: 'drawDiv',
+                container: 'drawDiv'+appExt,
                 width: dataWidth,
                 height: dataHeight,
                 listening: false
@@ -703,10 +744,9 @@ dwv.App = function()
     /**
      * Post load application initialisation. To be called once the DICOM has been parsed.
      * @method postLoadInit
-     * @private
      * @param {Object} data The data to display.
      */
-    function postLoadInit(data)
+    this.postLoadInit = function (data)
     {
         // only initialise the first time
         if( view ) {
@@ -737,37 +777,42 @@ dwv.App = function()
         // image listeners
         view.addEventListener("wlchange", self.onWLChange);
         view.addEventListener("colorchange", self.onColorChange);
-        view.addEventListener("slicechange", self.onSliceChange);
+
+        if (appType == 'motility')
+            view.addEventListener("slicechange", self.onSliceChange);
         
         // stop box listening to drag (after first drag)
-        var box = document.getElementById("dropBox");
+        var box = document.getElementById("dropBox"+appExt);
         if ( box ) {
             box.removeEventListener("dragover", onDragOver);
             box.removeEventListener("dragleave", onDragLeave);
             box.removeEventListener("drop", onDrop);
-            dwv.html.removeNode("dropBox");
+            dwv.html.removeNode("dropBox"+appExt);
             // switch listening to layerContainer
-            var div = document.getElementById("layerContainer");
+            var div = document.getElementById("layerContainer"+appExt);
             div.addEventListener("dragover", onDragOver);
             div.addEventListener("dragleave", onDragLeave);
             div.addEventListener("drop", onDrop);
         }
 
         // info layer
-        if(document.getElementById("infoLayer")){
-            dwv.info.createWindowingDiv();
-            dwv.info.createPositionDiv();
-            dwv.info.createMiniColorMap();
-            dwv.info.createPlot();
+        if(document.getElementById("infoLayer"+appExt)){
+            dwv.info.createWindowingDiv(appExt);
+            dwv.info.createPositionDiv(appExt);
+            dwv.info.createMiniColorMap(appExt);
+            dwv.info.createPlot(appType);
             addImageInfoListeners();
         }
         
         // initialise the toolbox
-        toolBox.init();
-        toolBox.display(true);
+        if (appType == 'motility') {
+            toolBox.init();
+            toolBox.display(true);
+            // init W/L display
+            self.initWLDisplay();
+        }
         
-        // init W/L display
-        self.initWLDisplay();        
+
     }
     
 };

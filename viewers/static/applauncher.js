@@ -5,7 +5,8 @@
 // check browser support
 dwv.browser.check();
 // main application
-var app = new dwv.App();
+var app = new dwv.App('motility');
+var medianViewer = new dwv.App('median');
 
 // launch when page is loaded
 $(document).ready( function()
@@ -25,7 +26,10 @@ $(document).ready( function()
     $("#help").dialog({ position: 
         {my: "right top", at: "right top", of: "#pageMain"},
         autoOpen: false, width: 500, height: 590 });
-    
+
+
+
+
     // image dialog
     $("#layerDialog").dialog({ position: 
         {my: "left+320 top", at: "left top", of: "#pageMain"}});
@@ -34,6 +38,17 @@ $(document).ready( function()
     // Resizable but keep aspect ratio
     // TODO it seems to add a border that bothers getting the cursor position...
     //$("#layerContainer").resizable({ aspectRatio: true });
+
+
+    // image dialog
+    $("#layerDialog_med").dialog({ position:
+    {my: "left+600 top", at: "left top", of: "#pageMain"}});
+    // default size
+    $("#layerDialog_med").dialog({ width: "auto", resizable: false });
+    // Resizable but keep aspect ratio
+    // TODO it seems to add a border that bothers getting the cursor position...
+    //$("#layerContainer").resizable({ aspectRatio: true });
+
 
     // Add required loaders to the loader list
     dwv.io.loaders = {};
@@ -53,21 +68,21 @@ $(document).ready( function()
     dwv.tool.tools["Zoom/Pan"] = new dwv.tool.ZoomAndPan(app);
     dwv.tool.tools.scroll = new dwv.tool.Scroll(app);
     dwv.tool.tools.draw = new dwv.tool.Draw(app);
-    dwv.tool.tools.livewire = new dwv.tool.Livewire(app);
-    dwv.tool.tools.filter = new dwv.tool.Filter(app);
+    //dwv.tool.tools.livewire = new dwv.tool.Livewire(app);
+    //dwv.tool.tools.filter = new dwv.tool.Filter(app);
 
     // Add filters to the filter list for the filter tool
-    dwv.tool.filters = {};
-    dwv.tool.filters.threshold = new dwv.tool.filter.Threshold(app);
-    dwv.tool.filters.sharpen = new dwv.tool.filter.Sharpen(app);
-    dwv.tool.filters.sobel = new dwv.tool.filter.Sobel(app);
+    //dwv.tool.filters = {};
+    //dwv.tool.filters.threshold = new dwv.tool.filter.Threshold(app);
+    //dwv.tool.filters.sharpen = new dwv.tool.filter.Sharpen(app);
+    //dwv.tool.filters.sobel = new dwv.tool.filter.Sobel(app);
 
     // Add shapes to the shape list for the draw tool
     dwv.tool.shapes = {};
     dwv.tool.shapes.line = dwv.tool.LineCreator;
-    dwv.tool.shapes.rectangle = dwv.tool.RectangleCreator;
+    //dwv.tool.shapes.rectangle = dwv.tool.RectangleCreator;
     dwv.tool.shapes.roi = dwv.tool.RoiCreator;
-    dwv.tool.shapes.ellipse = dwv.tool.EllipseCreator;
+    //dwv.tool.shapes.ellipse = dwv.tool.EllipseCreator;
 
     // append tool container HTML
     dwv.gui.appendToolboxHtml();
@@ -76,14 +91,14 @@ $(document).ready( function()
     dwv.gui.appendZoomAndPanHtml();
     dwv.gui.appendScrollHtml();
     dwv.gui.appendDrawHtml();
-    dwv.gui.appendLivewireHtml();
+    //dwv.gui.appendLivewireHtml();
     
     // append filter container HTML
-    dwv.gui.appendFilterHtml();
+    //dwv.gui.appendFilterHtml();
     // append filters HTML
-    dwv.gui.filter.appendThresholdHtml();
-    dwv.gui.filter.appendSharpenHtml();
-    dwv.gui.filter.appendSobelHtml();
+    //dwv.gui.filter.appendThresholdHtml();
+    //dwv.gui.filter.appendSharpenHtml();
+    //dwv.gui.filter.appendSobelHtml();
     
     // append help HTML
     dwv.gui.appendHelpHtml(false);
@@ -92,7 +107,8 @@ $(document).ready( function()
 
     // initialise the application
     app.init();
-    
+    medianViewer.init();
+
     // help
     // TODO Seems accordion only works when at end...
     $("#accordion").accordion({ collapsible: "true", active: "false", heightStyle: "content" });

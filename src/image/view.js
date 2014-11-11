@@ -418,6 +418,8 @@ dwv.image.View.prototype.fireEvent = function(event)
     if( !listeners[event.type] ) {
         return;
     }
+    event.target = this;
+
     for(var i=0; i < listeners[event.type].length; ++i)
     {   
         listeners[event.type][i](event);

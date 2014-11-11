@@ -17,8 +17,11 @@ body { background-color: #222; color: white;
 #toolbox li:first-child { list-style-type: none; padding-bottom: 10px; margin-left: -20px; }
 #pageMain { position: absolute; height: 92%; width: 99%; bottom: 5px; left: 5px; background-color: #333; }
 #infotl { color: #333; text-shadow: 0 1px 0 #fff; }
+#infotl_med { color: #333; text-shadow: 0 1px 0 #fff; }
 #infotr { color: #333; text-shadow: 0 1px 0 #fff; }
+#infotr_med { color: #333; text-shadow: 0 1px 0 #fff; }
 #dropBox { margin: 20px; }
+#dropBox_med { margin: 20px; }
 </style>
 <link type="text/css" rel="stylesheet" href="../../ext/jquery-ui/themes/ui-darkness/jquery-ui-1.11.1.min.css">
 <!-- Third party -->  
@@ -110,6 +113,9 @@ body { background-color: #222; color: white;
 <!-- Help -->
 <div id="help" title="Help"></div>
 
+
+
+
 <!-- Layer Container -->
 <div id="layerDialog" title="Image">
 <div id="dropBox"></div>
@@ -124,6 +130,23 @@ body { background-color: #222; color: white;
 </div><!-- /infoLayer -->
 </div><!-- /layerContainer -->
 </div><!-- /layerDialog -->
+
+
+  <!-- Layer Container for median viewer -->
+  <div id="layerDialog_med" title="Image">
+    <div id="dropBox_med"></div>
+    <div id="layerContainer_med">
+      <canvas id="imageLayer_med">Only for HTML5 compatible browsers...</canvas>
+      <div id="drawDiv_med"></div>
+      <div id="infoLayer_med">
+        <div id="infotl_med"></div>
+        <div id="infotr_med"></div>
+        <div id="infobl_med"></div>
+        <div id="infobr_med"><div id="plot_med"></div></div>
+      </div><!-- /infoLayer -->
+    </div><!-- /layerContainer -->
+  </div><!-- /layerDialog -->
+
 
 </div><!-- /pageMain -->
 

@@ -14,22 +14,23 @@ dwv.info = dwv.info || {};
 /**
  * Create the windowing info div.
  * @method createWindowingDiv
+ * @param {string} appExt The type of application ( 'motility'/'median' ) ('' // '_med')
  * @static
  */
-dwv.info.createWindowingDiv = function()
+dwv.info.createWindowingDiv = function(appExt)
 {
-    var div = document.getElementById("infotr");
-    dwv.html.removeNode("ulinfotr");
+    var div = document.getElementById("infotr"+appExt);
+    dwv.html.removeNode("ulinfotr"+appExt);
     // windowing list
     var ul = document.createElement("ul");
-    ul.id = "ulinfotr";
+    ul.id = "ulinfotr"+appExt;
     // window center list item
     var liwc = document.createElement("li");
-    liwc.id = "liwcinfotr";
+    liwc.id = "liwcinfotr"+appExt;
     ul.appendChild(liwc);
     // window width list item
     var liww = document.createElement("li");
-    liww.id = "liwwinfotr";
+    liww.id = "liwwinfotr"+appExt;
     ul.appendChild(liww);
     // add list to div
     div.appendChild(ul);
@@ -45,11 +46,11 @@ dwv.info.createWindowingDiv = function()
 dwv.info.updateWindowingDiv = function(event)
 {
     // window center list item
-    var liwc = document.getElementById("liwcinfotr");
+    var liwc = document.getElementById("liwcinfotr"+event.target.appExt);
     dwv.html.cleanNode(liwc);
     liwc.appendChild(document.createTextNode("WindowCenter = "+event.wc));
     // window width list item
-    var liww = document.getElementById("liwwinfotr");
+    var liww = document.getElementById("liwwinfotr"+event.target.appExt);
     dwv.html.cleanNode(liww);
     liww.appendChild(document.createTextNode("WindowWidth = "+event.ww));
 };
@@ -57,22 +58,23 @@ dwv.info.updateWindowingDiv = function(event)
 /**
  * Create the position info div.
  * @method createPositionDiv
+ * @param {string} appExt The type of application ( 'motility'/'median' ) ('' // '_med')
  * @static
  */
-dwv.info.createPositionDiv = function()
+dwv.info.createPositionDiv = function(appExt)
 {
-    var div = document.getElementById("infotl");
-    dwv.html.removeNode("ulinfotl");
+    var div = document.getElementById("infotl"+appExt);
+    dwv.html.removeNode("ulinfotl"+appExt);
     // position list
     var ul = document.createElement("ul");
-    ul.id = "ulinfotl";
+    ul.id = "ulinfotl"+appExt;
     // position
     var lipos = document.createElement("li");
-    lipos.id = "liposinfotl";
+    lipos.id = "liposinfotl"+appExt;
     ul.appendChild(lipos);
     // value
     var livalue = document.createElement("li");
-    livalue.id = "livalueinfotl";
+    livalue.id = "livalueinfotl"+appExt;
     ul.appendChild(livalue);
     // add list to div
     div.appendChild(ul);
@@ -88,13 +90,13 @@ dwv.info.createPositionDiv = function()
 dwv.info.updatePositionDiv = function(event)
 {
     // position list item
-    var lipos = document.getElementById("liposinfotl");
+    var lipos = document.getElementById("liposinfotl"+event.target.appExt);
     dwv.html.cleanNode(lipos);
     lipos.appendChild(document.createTextNode("Pos = "+event.i+", "+event.j+", "+event.k));
     // value list item
     if( typeof(event.value) != "undefined" )
     {
-        var livalue = document.getElementById("livalueinfotl");
+        var livalue = document.getElementById("livalueinfotl"+event.target.appExt);
         dwv.html.cleanNode(livalue);
         livalue.appendChild(document.createTextNode("Value = "+event.value));
     }
@@ -103,15 +105,16 @@ dwv.info.updatePositionDiv = function(event)
 /**
  * Create the mini color map info div.
  * @method createMiniColorMap
+ * @param {string} appExt The type of application ( 'motility'/'median' ) ('' // '_med')
  * @static
  */
-dwv.info.createMiniColorMap = function()
+dwv.info.createMiniColorMap = function(appExt)
 {    
     // color map
-    var div = document.getElementById("infobr");
-    dwv.html.removeNode("canvasinfobr");
+    var div = document.getElementById("infobr"+appExt);
+    dwv.html.removeNode("canvasinfobr"+appExt);
     var canvas = document.createElement("canvas");
-    canvas.id = "canvasinfobr";
+    canvas.id = "canvasinfobr"+appExt;
     canvas.width = 98;
     canvas.height = 10;
     // add canvas to div
@@ -130,7 +133,7 @@ dwv.info.updateMiniColorMap = function(event)
     var windowCenter = event.wc;
     var windowWidth = event.ww;
     
-    var canvas = document.getElementById("canvasinfobr");
+    var canvas = document.getElementById("canvasinfobr"+event.target.appExt);
     var context = canvas.getContext('2d');
     
     // fill in the image data
@@ -178,16 +181,28 @@ dwv.info.updateMiniColorMap = function(event)
 /**
  * Create the plot info.
  * @method createPlot
+ * @param {string} appType The type of application ( 'motility'/'median' )
  * @static
  */
-dwv.info.createPlot = function()
+dwv.info.createPlot = function(appType)
 {
-    $.plot($("#plot"), [ app.getImage().getHistogram() ], {
-        "bars": { "show": true },
-        "grid": { "backgroundColor": null },
-        "xaxis": { "show": true },
-        "yaxis": { "show": false }
-    });
+    if (appType == 'motility') {
+        $.plot($("#plot"), [app.getImage().getHistogram()], {
+            "bars": {"show": true},
+            "grid": {"backgroundColor": null},
+            "xaxis": {"show": true},
+            "yaxis": {"show": false}
+        });
+    }
+    else{
+        $.plot($("#plot_med"), [medianViewer.getImage().getHistogram()], {
+            "bars": {"show": true},
+            "grid": {"backgroundColor": null},
+            "xaxis": {"show": true},
+            "yaxis": {"show": false}
+        });
+    }
+
 };
 
 /**
@@ -197,25 +212,35 @@ dwv.info.createPlot = function()
  * @param {Object} event The windowing change event containing the new values.
  * Warning: expects the plot to exist (use after createPlot).
  */
-dwv.info.updatePlotMarkings = function(event)
-{
+dwv.info.updatePlotMarkings = function(event) {
     var wc = event.wc;
     var ww = event.ww;
-    
-    var half = parseInt( (ww-1) / 2, 10 );
-    var center = parseInt( (wc-0.5), 10 );
+
+    var half = parseInt((ww - 1) / 2, 10);
+    var center = parseInt((wc - 0.5), 10);
     var min = center - half;
     var max = center + half;
-    
+
     var markings = [
-        { "color": "#faa", "lineWidth": 1, "xaxis": { "from": min, "to": min } },
-        { "color": "#aaf", "lineWidth": 1, "xaxis": { "from": max, "to": max } }
+        {"color": "#faa", "lineWidth": 1, "xaxis": {"from": min, "to": min}},
+        {"color": "#aaf", "lineWidth": 1, "xaxis": {"from": max, "to": max}}
     ];
 
-    $.plot($("#plot"), [ app.getImage().getHistogram() ], {
-        "bars": { "show": true },
-        "grid": { "markings": markings, "backgroundColor": null },
-        "xaxis": { "show": false },
-        "yaxis": { "show": false }
-    });
+    if (event.target.appType == 'motility'){
+        $.plot($("#plot"), [app.getImage().getHistogram()], {
+            "bars": {"show": true},
+            "grid": {"markings": markings, "backgroundColor": null},
+            "xaxis": {"show": false},
+            "yaxis": {"show": false}
+        });
+    }
+    else{
+        $.plot($("#plot_med"), [medianViewer.getImage().getHistogram()], {
+            "bars": {"show": true},
+            "grid": {"markings": markings, "backgroundColor": null},
+            "xaxis": {"show": false},
+            "yaxis": {"show": false}
+        });
+    }
+
 };

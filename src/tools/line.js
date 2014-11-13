@@ -24,7 +24,7 @@ dwv.tool.LineCreator = function (points, style, image)
         points: [line.getBegin().getX(), line.getBegin().getY(), 
                  line.getEnd().getX(), line.getEnd().getY() ],
         stroke: style.getLineColor(),
-        strokeWidth: 3 / app.getDrawStage().scale().x,
+        strokeWidth: 3 / interactionApp.getDrawStage().scale().x,
         name: "shape"
     });
     // quantification
@@ -34,7 +34,7 @@ dwv.tool.LineCreator = function (points, style, image)
         x: line.getEnd().getX(),
         y: line.getEnd().getY() - 15,
         text: str,
-        fontSize: 20 / app.getDrawStage().scale().x,
+        fontSize: 20 / interactionApp.getDrawStage().scale().x,
         fontFamily: "Verdana",
         fill: style.getLineColor(),
         name: "text"

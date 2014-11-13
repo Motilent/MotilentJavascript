@@ -48,9 +48,11 @@ dwv.tool.RoiCreator = function (points, style /*, image*/)
     var kline = new Kinetic.Line({
         points: arr,
         stroke: style.getLineColor(),
+        fill: tinycolor(style.getLineColor()).setAlpha(0.2).toString(),
         strokeWidth: 2,
         name: "shape",
-        closed: true
+        closed: true,
+        tension: 0.3
     });
     // quantification
     var ktext = new Kinetic.Text({

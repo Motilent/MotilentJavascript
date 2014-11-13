@@ -230,6 +230,15 @@ dwv.tool.Draw = function (app)
      */
     var shapeGroup = null;
 
+
+    /**
+     * Current shape click type (drag or click).
+     * @property clickTypeShape
+     * @private
+     * @type bool
+     */
+    var clickTypeShape = false;
+
     /**
      * Drawing style.
      * @property style
@@ -322,18 +331,27 @@ dwv.tool.Draw = function (app)
             }
         }
         else {
-            // disable edition
-            shapeEditor.disable();
-            shapeEditor.setShape(null);
-            shapeEditor.setImage(null);
-            // start storing points
-            started = true;
-            shapeGroup = new Kinetic.Group();
-            // clear array
-            points = [];
+            if (!started || !clickTypeShape) {
+                // disable editor
+                shapeEditor.disable();
+                shapeEditor.setShape(null);
+                shapeEditor.setImage(null);
+                // start storing points
+                started = true;
+                shapeGroup = new Kinetic.Group();
+                // clear array
+                points = [];
+            }
             // store point
             lastPoint = new dwv.math.Point2D(event._x, event._y);
             points.push(lastPoint);
+
+            // Determine if shape draw type is draggable or clickable
+            if (self.shapeName == 'line')
+                clickTypeShape = false;
+            else if (self.shapeName == 'roi')
+                clickTypeShape = true;
+
         }
     };
 
@@ -352,6 +370,10 @@ dwv.tool.Draw = function (app)
         {
             // current point
             lastPoint = new dwv.math.Point2D(event._x, event._y);
+            // if click type shape, remove last point before adding new one
+            if (clickTypeShape && !justStarted){
+                points.pop();
+            }
             points.push( lastPoint );
             // remove previous draw if not just started
             if ( activeShape && !justStarted ) {
@@ -384,6 +406,8 @@ dwv.tool.Draw = function (app)
      * @param {Object} event The mouse up event.
      */
     this.mouseup = function (/*event*/){
+        if (clickTypeShape)
+            return;
         if (started && points.length > 1 )
         {
             // remove previous draw
@@ -407,6 +431,49 @@ dwv.tool.Draw = function (app)
             // save it in undo stack
             app.getUndoStack().add(command);
             
+            // set shape on
+            self.setShapeOn(activeShape, activeText);
+            createdShapes.push({"shape": activeShape, "text": activeText});
+        }
+        // reset flag
+        started = false;
+        justStarted = true;
+    };
+
+    /**
+     * Handle mouse double click event.
+     * @method mouseup
+     * @param {Object} event The mouse up event.
+     */
+    this.dblclick = function (event){
+        if (!clickTypeShape)
+            return;
+        if (started && points.length > 1 )
+        {
+            // remove previous draw
+            if ( activeShape ) {
+                activeShape.destroy();
+                activeText.destroy();
+            }
+            // Remove points from double clicking
+            points.pop();
+            points.pop();
+            // create final shape
+            var tmp = new dwv.tool.shapes[self.shapeName](points, self.style, app.getImage());
+            activeShape = tmp.shape;
+            activeText = tmp.text;
+            // re-activate layer
+            drawLayer.hitGraphEnabled(true);
+            // add shape to group
+            shapeGroup.add(activeShape);
+            shapeGroup.add(activeText);
+            // draw shape command
+            command = new dwv.tool.DrawShapeCommand(activeShape, self.shapeName, drawLayer);
+            // execute it
+            command.execute();
+            // save it in undo stack
+            app.getUndoStack().add(command);
+
             // set shape on
             self.setShapeOn(activeShape, activeText);
             createdShapes.push({"shape": activeShape, "text": activeText});

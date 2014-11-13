@@ -66,8 +66,13 @@ $(document).ready( function()
     dwv.tool.tools = {};
     dwv.tool.tools["Window/Level"] = new dwv.tool.WindowLevel(app);
     dwv.tool.tools["Zoom/Pan"] = new dwv.tool.ZoomAndPan(app);
+    dwv.tool.tools["Zoom/Pan_med"] = new dwv.tool.ZoomAndPan(medianViewer);
     dwv.tool.tools.scroll = new dwv.tool.Scroll(app);
     dwv.tool.tools.draw = new dwv.tool.Draw(app);
+    dwv.tool.tools.draw_med = new dwv.tool.Draw(medianViewer);
+    medianViewer.setToolBox(app.getToolBox());
+   // dwv.tool.tools.draw_med = new dwv.tool.Draw();
+
     //dwv.tool.tools.livewire = new dwv.tool.Livewire(app);
     //dwv.tool.tools.filter = new dwv.tool.Filter(app);
 

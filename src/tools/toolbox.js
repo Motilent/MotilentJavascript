@@ -22,6 +22,14 @@ dwv.tool.ToolBox = function(/*app*/)
      * @type Object
      */
     this.selectedTool = 0;
+
+    /**
+     * Selected tool for median image
+     * @property selectedTool
+     * @type Object
+     */
+    this.selectedToolMedian = 0;
+
     /**
      * Default tool name.
      * @property defaultToolName
@@ -49,6 +57,10 @@ dwv.tool.ToolBox.prototype.getSelectedTool = function() {
     return this.selectedTool;
 };
 
+dwv.tool.ToolBox.prototype.getSelectedMedianTool = function() {
+    return this.selectedToolMedian;
+};
+
 /**
  * Set the selected tool.
  * @method setSelectedTool
@@ -65,10 +77,20 @@ dwv.tool.ToolBox.prototype.setSelectedTool = function(name) {
     {
         this.selectedTool.display(false);
     }
+    if (this.selectedToolMedian)
+        this.selectedToolMedian.display(false);
+
     // enable new one
     this.selectedTool = dwv.tool.tools[name];
     // display it
     this.selectedTool.display(true);
+
+    // Also find tool based on median image and enable if defined
+    this.selectedToolMedian = dwv.tool.tools[name +'_med'];
+    if (typeof this.selectedToolMedian == 'undefined')
+        this.selectedToolMedian = 0;
+    else
+        this.selectedToolMedian.display(true);
 };
 
 /**

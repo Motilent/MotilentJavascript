@@ -3,6 +3,8 @@ var dwv = dwv || {};
 
 var Kinetic = Kinetic || {};
 
+var interactionApp = 'motility';
+
 /**
  * Main application class.
  * @class App
@@ -59,6 +61,14 @@ dwv.App = function(type)
      * @return {String} The version of the application.
      */
     this.getVersion = function() { return "v0.8.0beta"; };
+
+
+    /**
+     * Get the type of the application.
+     * @method getVersion
+     * @return {String} The type of the application (motility / median)
+     */
+    this.getType = function() { return appType; };
     
     /** 
      * Get the image.
@@ -108,6 +118,13 @@ dwv.App = function(type)
      */
     this.getToolBox = function() { return toolBox; };
 
+
+    /**
+     * Set the tool box.
+     * @method getToolBox
+     * @param {Object} The associated toolbox.
+     */
+    this.setToolBox = function(tb) { toolBox = tb; };
     /** 
      * Get the image layer.
      * @method getImageLayer
@@ -632,7 +649,11 @@ dwv.App = function(type)
         // Call the event handler of the tool.
         if( handled )
         {
-            var func = self.getToolBox().getSelectedTool()[event.type];
+            interactionApp = self;
+            if (appType == 'motility')
+                var func = self.getToolBox().getSelectedTool()[event.type];
+            else
+                var func = self.getToolBox().getSelectedMedianTool()[event.type];
             if( func )
             {
                 func(event);

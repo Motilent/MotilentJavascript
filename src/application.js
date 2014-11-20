@@ -60,7 +60,7 @@ dwv.App = function(type)
      * @method getVersion
      * @return {String} The version of the application.
      */
-    this.getVersion = function() { return "v0.8.0beta"; };
+    this.getVersion = function() { return "v0.1"; };
 
 
     /**
@@ -136,8 +136,11 @@ dwv.App = function(type)
      * @method getDrawLayer
      * @return {Object} The draw layer.
      */
-    this.getDrawLayer = function() { 
-        return drawLayers[view.getCurrentPosition().k];
+    this.getDrawLayer = function() {
+        if (appType == 'motility')
+            return drawLayers[view.getCurrentPosition().k];
+        else
+            return drawLayers[0];
     };
 
     /**

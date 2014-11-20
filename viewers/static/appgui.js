@@ -144,6 +144,18 @@ dwv.gui.initDrawHtml = function(){
     dwv.gui.base.initDrawHtml();  
 };
 
+
+// Propagate
+dwv.gui.appendPropagateHtml = function(){
+    dwv.gui.base.appendPropagateHtml();
+};
+dwv.gui.displayPropagateHtml = function(bool){
+    dwv.gui.base.displayPropagateHtml(bool);
+};
+dwv.gui.initPropagateHtml = function(){
+    dwv.gui.base.initPropagateHtml();
+};
+
 // Livewire
 dwv.gui.appendLivewireHtml = function(){
     dwv.gui.base.appendLivewireHtml();  

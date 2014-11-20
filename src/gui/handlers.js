@@ -131,6 +131,7 @@ dwv.gui.onChangeMinMax = function(range)
 dwv.gui.onChangeShape = function(/*event*/)
 {
     app.getToolBox().getSelectedTool().setShapeName(this.value);
+    app.getToolBox().getSelectedTool().getSiblingTool().setShapeName(this.value);
 };
 
 /**
@@ -142,6 +143,7 @@ dwv.gui.onChangeShape = function(/*event*/)
 dwv.gui.onChangeLineColour = function(/*event*/)
 {
     app.getToolBox().getSelectedTool().setLineColour(this.value);
+    app.getToolBox().getSelectedTool().getSiblingTool().setLineColour(this.value);
 };
 
 /**
@@ -153,6 +155,34 @@ dwv.gui.onChangeLineColour = function(/*event*/)
 dwv.gui.onZoomReset = function(/*event*/)
 {
     app.resetLayout();
+    medianViewer.resetLayout();
+};
+
+/**
+ * Handle propagation of one layer of shapes
+ * @static
+ */
+
+dwv.gui.copyOneLayer = function(){
+    // Search for propagate tool
+    for (var i in dwv.tool.tools){
+        if (/propagate/i.test(i)){
+            dwv.tool.tools[i].copyMedianLayer();
+        }
+    }
+};
+
+/**
+ * Handle propagation of all layers of shapes
+ * @static
+ */
+dwv.gui.copyToAllLayers = function(){
+    // Search for propagate tool
+    for (var i in dwv.tool.tools){
+        if (/propagate/i.test(i)){
+            dwv.tool.tools[i].copyMedianLayerToAll();
+        }
+    }
 };
 
 /**

@@ -13,28 +13,10 @@ var Kinetic = Kinetic || {};
  * @param {Array} points The points from which to extract the line.
  * @param {Style} style The drawing style.
  */ 
-dwv.tool.RoiCreator = function (points, style /*, image*/)
+dwv.tool.RoiCreator = function (points, style, image)
 {
     // physical shape
     var roi = new dwv.math.ROI();
-    // sample points so that they are not too close 
-    // to one another
-    /*if ( isFinal ) {
-        var size = points.length;
-        var clean = [];
-        if ( size > 0 ) {
-            clean.push( points[0] );
-            var last = points[0];
-            for ( var j = 1; j < size; ++j ) {
-                var line = new dwv.math.Line( last, points[j] );
-                if( line.getLength() > 2 ) {
-                    clean.push( points[j] );
-                    last = points[j];
-                }
-            }
-            points = clean;
-        }
-    }*/
     // add input points to the ROI
     roi.addPoints(points);
     // points stored the kineticjs way
@@ -49,17 +31,19 @@ dwv.tool.RoiCreator = function (points, style /*, image*/)
         points: arr,
         stroke: style.getLineColor(),
         fill: tinycolor(style.getLineColor()).setAlpha(0.2).toString(),
-        strokeWidth: 2,
+        strokeWidth: 3 / interactionApp.getDrawStage().scale().x,
         name: "shape",
         closed: true,
         tension: 0.3
     });
     // quantification
+    var quant = image.quantifyROI(points);
+    var str = quant.area.toPrecision(4) + "mm" +String.fromCharCode(0x00B2);
     var ktext = new Kinetic.Text({
-        x: 0,
-        y: 0,
-        text: "",
-        fontSize: style.getFontSize(),
+        x: points[0].getX(),
+        y: points[0].getY(),
+        text: str,
+        fontSize: 20 / interactionApp.getDrawStage().scale().x,
         fontFamily: "Verdana",
         fill: style.getLineColor(),
         name: "text"
@@ -75,7 +59,7 @@ dwv.tool.RoiCreator = function (points, style /*, image*/)
  * @param {Object} kroi The line shape to update.
  * @param {Object} anchor The active anchor.
  */ 
-dwv.tool.UpdateRoi = function (kroi, anchor /*, image*/)
+dwv.tool.UpdateRoi = function (kroi, anchor, image)
 {
     // parent group
     var group = anchor.getParent();
@@ -91,4 +75,18 @@ dwv.tool.UpdateRoi = function (kroi, anchor /*, image*/)
     points[anchor.id()] = anchor.x() - kroi.x();
     points[anchor.id()+1] = anchor.y() - kroi.y();
     kroi.points( points );
+
+
+    var pointArr = [];
+    for (var i =0; i < points.length; i+=2)
+        pointArr.push(new dwv.math.Point2D(points[i],points[i+1]));
+    // update text
+    var ktext = group.getChildren(function(node){
+        return node.name() === 'text';
+    })[0];
+    if ( ktext ) {
+        var quant = image.quantifyROI( pointArr );
+        var str = quant.area.toPrecision(4) + "mm" +String.fromCharCode(0x00B2);
+        ktext.text(str);
+    }
 };

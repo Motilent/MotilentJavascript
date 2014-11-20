@@ -230,6 +230,29 @@ dwv.tool.Draw = function (app)
      */
     var shapeGroup = null;
 
+    /**
+     * Sibling tool with functionality linked to another viewer
+     * @type Object
+     */
+    var siblingTool = null;
+
+    /**
+     * Set the sibling tool
+     * @method setSiblingTool
+     * @param {Object} sibTool The sibling tool to link
+     */
+    this.setSiblingTool = function(sibTool){
+        siblingTool = sibTool;
+    };
+
+    /**
+     * Get the sibling tool
+     * @method getSiblingTool
+     * @return {Object} The sibling tool
+     */
+    this.getSiblingTool = function(){
+        return siblingTool;
+    };
 
     /**
      * Current shape click type (drag or click).
@@ -287,7 +310,7 @@ dwv.tool.Draw = function (app)
     // first line of the cross
     var trashLine1 = new Kinetic.Line({
         points: [-10, -10, 10, 10 ],
-        stroke: 'red',
+        stroke: 'red'
     });
     // second line of the cross
     var trashLine2 = new Kinetic.Line({
@@ -304,6 +327,15 @@ dwv.tool.Draw = function (app)
      * @type Object
      */
     var drawLayer = null;
+
+    /**
+     * Add
+     * @method addToCreatedShapes
+     * @param {Object} shape The KineticJS shape to add to the tool's collection of shapes
+     */
+    this.addToCreatedShapes = function(shape){
+        createdShapes.push(shape);
+    };
     
     /**
      * Handle mouse down event.
@@ -346,12 +378,17 @@ dwv.tool.Draw = function (app)
             lastPoint = new dwv.math.Point2D(event._x, event._y);
             points.push(lastPoint);
 
+            // Push another point as this is deleted immediately on moving the mouse
+            if (points.length == 1)
+                points.push(lastPoint);
+
             // Determine if shape draw type is draggable or clickable
             if (self.shapeName == 'line')
                 clickTypeShape = false;
             else if (self.shapeName == 'roi')
                 clickTypeShape = true;
-
+            else
+                clickTypeShape = false;
         }
     };
 
@@ -389,6 +426,7 @@ dwv.tool.Draw = function (app)
             activeText = tmp.text;
             // do not listen during creation
             activeShape.listening(false);
+
             drawLayer.hitGraphEnabled(false);
             // add shape to group
             shapeGroup.add(activeShape);

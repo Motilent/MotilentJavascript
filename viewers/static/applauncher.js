@@ -70,6 +70,9 @@ $(document).ready( function()
     dwv.tool.tools.scroll = new dwv.tool.Scroll(app);
     dwv.tool.tools.draw = new dwv.tool.Draw(app);
     dwv.tool.tools.draw_med = new dwv.tool.Draw(medianViewer);
+    dwv.tool.tools.draw.setSiblingTool(dwv.tool.tools.draw_med);
+    dwv.tool.tools.draw_med.setSiblingTool(dwv.tool.tools.draw);
+    dwv.tool.tools.propagate = new dwv.tool.Propagate(app, medianViewer, dwv.tool.tools.draw, dwv.tool.tools.draw_med);
     medianViewer.setToolBox(app.getToolBox());
    // dwv.tool.tools.draw_med = new dwv.tool.Draw();
 
@@ -96,6 +99,7 @@ $(document).ready( function()
     dwv.gui.appendZoomAndPanHtml();
     dwv.gui.appendScrollHtml();
     dwv.gui.appendDrawHtml();
+    dwv.gui.appendPropagateHtml();
     //dwv.gui.appendLivewireHtml();
     
     // append filter container HTML

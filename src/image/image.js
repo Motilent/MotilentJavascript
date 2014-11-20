@@ -749,6 +749,22 @@ dwv.image.Image.prototype.quantifyLine = function(line)
     return {"length": length};
 };
 
+
+dwv.image.Image.prototype.quantifyROI = function(points){
+    var area = 0;         // Accumulates area in the loop
+    if (points.length > 2) {
+        var j = points.length - 1;  // The last vertex is the 'previous' one to the first
+        for (var i = 0; i < points.length; i++) {
+            area = area + (points[j].getX() + points[i].getX()) * (points[j].getY() - points[i].getY())*this.getSpacing().getRowSpacing()*this.getSpacing().getColumnSpacing();
+            j = i;  //j is previous vertex to i
+        }
+        area/=2;
+        if (area < 0)
+            area = -area;
+    }
+    return {"area": area};
+};
+
 /**
  * Quantify a rectangle according to image information.
  * @method quantifyRect

@@ -71,6 +71,7 @@ body { background-color: #222; color: white;
 <script type="text/javascript" src="../../src/tools/undo.js"></script>
 <script type="text/javascript" src="../../src/tools/windowLevel.js"></script>
 <script type="text/javascript" src="../../src/tools/zoomPan.js"></script>
+  <script type="text/javascript" src="../../src/tools/propagate.js"></script>
 <script type="text/javascript" src="../../src/utils/string.js"></script>
 
 <!-- Launch the app -->
@@ -83,8 +84,8 @@ body { background-color: #222; color: white;
 <div id="pageHeader">
 
 <!-- Title -->
-<h1>DICOM Web Viewer 
-(<a href="https://github.com/ivmartel/dwv">dwv</a> 
+<h1>Motilent DICOM Viewer
+(<a href="http://www.motilent.co.uk/">Motilent</a>
 <span class="dwv-version"></span>)</h1>
 
 <!-- Toolbar -->
@@ -118,7 +119,7 @@ body { background-color: #222; color: white;
 
 
 <!-- Layer Container -->
-<div id="layerDialog" title="Image">
+<div id="layerDialog" title="Motility Images">
 <div id="dropBox"></div>
 <div id="layerContainer">
 <canvas id="imageLayer">Only for HTML5 compatible browsers...</canvas>
@@ -134,7 +135,7 @@ body { background-color: #222; color: white;
 
 
   <!-- Layer Container for median viewer -->
-  <div id="layerDialog_med" title="Image">
+  <div id="layerDialog_med" title="Median Image">
     <div id="dropBox_med"></div>
     <div id="layerContainer_med">
       <canvas id="imageLayer_med">Only for HTML5 compatible browsers...</canvas>

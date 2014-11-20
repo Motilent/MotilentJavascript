@@ -178,7 +178,7 @@ dwv.gui.base.appendDrawHtml = function()
     
     // node
     var node = document.getElementById("toolList");
-    // apend shape
+    // append shape
     node.appendChild(shapeLi);
     // append color
     node.appendChild(colourLi);
@@ -215,6 +215,102 @@ dwv.gui.base.initDrawHtml = function()
     var colourSelector = document.getElementById("colourSelect");
     colourSelector.selectedIndex = 0;
     dwv.gui.refreshSelect("#colourSelect");
+};
+
+
+
+/**
+ * Append the propagate HTML to the page.
+ * @method appendPropagateHtml
+ * @static
+ */
+dwv.gui.base.appendPropagateHtml = function()
+{
+    // propagate median to all motility
+    var allButton = document.createElement("button");
+    allButton.id = "propagateAllButton";
+    allButton.name = "propagateAllButton";
+    allButton.onclick = dwv.gui.copyToAllLayers;
+    allButton.setAttribute("style","width:100%; margin-top:0.5em;");
+    allButton.setAttribute("class","ui-btn ui-btn-b");
+    var text = document.createTextNode("Propagate All");
+    allButton.appendChild(text);
+
+    // propagate median to one motility
+    var oneButton = document.createElement("button");
+    oneButton.id = "propagateOneButton";
+    oneButton.name = "propagateOneButton";
+    oneButton.onclick = dwv.gui.copyOneLayer;
+    oneButton.setAttribute("style","width:100%; margin-top:0.5em;");
+    oneButton.setAttribute("class","ui-btn ui-btn-b");
+    text = document.createTextNode("Propagate One");
+    oneButton.appendChild(text);
+
+    // propagate current motility to median
+    /*
+    var backButton = document.createElement("button");
+    backButton.id = "propagateBackButton";
+    backButton.name = "propagateBackButton";
+    //backButton.onclick = dwv.gui.onZoomReset;
+    backButton.setAttribute("style","width:100%; margin-top:0.5em;");
+    backButton.setAttribute("class","ui-btn ui-btn-b");
+    text = document.createTextNode("Back Propagate");
+    backButton.appendChild(text);
+*/
+    // list element
+    var liAllElement = document.createElement("li");
+    liAllElement.id = "propagateAllLi";
+    liAllElement.style.display = "none";
+    liAllElement.setAttribute("class","ui-block-c");
+    liAllElement.appendChild(allButton);
+
+    // list element
+    var liOneElement = document.createElement("li");
+    liOneElement.id = "propagateOneLi";
+    liOneElement.style.display = "none";
+    liOneElement.setAttribute("class","ui-block-c");
+    liOneElement.appendChild(oneButton);
+/*
+    // list element
+    var liBackElement = document.createElement("li");
+    liBackElement.id = "propagateBackLi";
+    liBackElement.style.display = "none";
+    liBackElement.setAttribute("class","ui-block-c");
+    liBackElement.appendChild(backButton);
+*/
+    // node
+    var node = document.getElementById("toolList");
+    // append element
+    node.appendChild(liAllElement);
+    node.appendChild(liOneElement);
+    //node.appendChild(liBackElement);
+    // trigger create event (mobile)
+    $("#toolList").trigger("create");
+};
+
+/**
+ * Display the propagate HTML.
+ * @method displayPropagateHtml
+ * @static
+ * @param {Boolean} bool True to display, false to hide.
+ */
+dwv.gui.base.displayPropagateHtml = function(bool)
+{
+    // propagate buttons
+    dwv.html.displayElement("propagateAllLi", bool);
+    dwv.html.displayElement("propagateOneLi", bool);
+    dwv.html.displayElement("propagateBackLi", bool);
+
+};
+
+/**
+ * Initialise the propagate HTML.
+ * @method displayPropagateHtml
+ * @static
+ * */
+dwv.gui.base.initPropagateHtml = function()
+{
+    // Nothing to do here
 };
 
 /**

@@ -53,6 +53,31 @@ dwv.gui.onChangeLoader = function(/*event*/)
 };
 
 /**
+ * Handle exporter change.
+ * @method onChangeExporter
+ * @static
+ * @param {Object} event The change event.
+ */
+dwv.gui.onChangeExporter = function(/*event*/)
+{
+    if( this.value === "rois") {
+        dwv.gui.displayExportHtml(true)
+    }
+};
+
+/**
+ * Handle save button press.
+ * @method onChangeFiles
+ * @static
+ * @param {Object} event The change event.
+ */
+dwv.gui.onSaveFiles = function(event)
+{
+    //app.onSaveFiles(event);
+};
+
+
+/**
  * Handle files change.
  * @method onChangeFiles
  * @static

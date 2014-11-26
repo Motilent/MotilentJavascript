@@ -56,12 +56,25 @@ dwv.gui.appendLoadboxHtml = function(){
     dwv.gui.base.appendLoadboxHtml();
 };
 
+// Exporters
+dwv.gui.appendExportboxHtml = function(){
+    dwv.gui.base.appendExportboxHtml();
+};
+
 // File loader
 dwv.gui.appendFileLoadHtml = function(){
     dwv.gui.base.appendFileLoadHtml();
 };
 dwv.gui.displayFileLoadHtml = function(bool){
     dwv.gui.base.displayFileLoadHtml(bool);
+};
+
+// Exporter
+dwv.gui.appendExportHtml = function(){
+    dwv.gui.base.appendExportHtml();
+};
+dwv.gui.displayExportHtml = function(bool){
+    dwv.gui.base.displayExportHtml(bool);
 };
 
 // Url loader

@@ -18,7 +18,9 @@ $(document).ready( function()
         {my: "left top", at: "left top", of: "#pageMain"} });
     $("#toolbox").dialog({ position: 
         {my: "left top+160", at: "left top", of: "#pageMain"} });
-    $("#history").dialog({ position: 
+    //$("#history").dialog({ position:
+     //   {my: "left top+350", at: "left top", of: "#pageMain"} });
+    $('#exportData').dialog({ position:
         {my: "left top+350", at: "left top", of: "#pageMain"} });
     $("#tags").dialog({ position: 
         {my: "right top", at: "right top", of: "#pageMain"},
@@ -55,12 +57,24 @@ $(document).ready( function()
     dwv.io.loaders.file = dwv.io.File;
     dwv.io.loaders.url = dwv.io.Url;
 
+    // Add exporters to exporter list
+    dwv.io.exporters = {};
+    dwv.io.exporters.ROIs = dwv.io.ExportROI;
+
+
     // append load container HTML
     dwv.gui.appendLoadboxHtml();
     // append loaders HTML
     dwv.gui.appendFileLoadHtml();
     dwv.gui.appendUrlLoadHtml();
     dwv.gui.displayFileLoadHtml(true);
+
+
+    // append exporters HTML
+    dwv.gui.appendExportboxHtml();
+    dwv.gui.appendExportHtml();
+    dwv.gui.displayExportHtml(true);
+
 
     // Add tools to the tool list
     dwv.tool.tools = {};
@@ -74,7 +88,7 @@ $(document).ready( function()
     dwv.tool.tools.draw_med.setSiblingTool(dwv.tool.tools.draw);
     dwv.tool.tools.propagate = new dwv.tool.Propagate(app, medianViewer, dwv.tool.tools.draw, dwv.tool.tools.draw_med);
     medianViewer.setToolBox(app.getToolBox());
-   // dwv.tool.tools.draw_med = new dwv.tool.Draw();
+
 
     //dwv.tool.tools.livewire = new dwv.tool.Livewire(app);
     //dwv.tool.tools.filter = new dwv.tool.Filter(app);
@@ -112,7 +126,7 @@ $(document).ready( function()
     // append help HTML
     dwv.gui.appendHelpHtml(false);
     dwv.gui.appendVersionHtml();
-    dwv.gui.appendUndoHtml();
+    //dwv.gui.appendUndoHtml();
 
     // initialise the application
     app.init();

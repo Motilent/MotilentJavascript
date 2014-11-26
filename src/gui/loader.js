@@ -12,6 +12,10 @@ var dwv = dwv || {};
 dwv.gui = dwv.gui || {};
 dwv.gui.base = dwv.gui.base || {};
 
+
+
+
+
 /**
  * Append the loadbox HTML to the page.
  * @method appendLoadboxHtml
@@ -67,7 +71,7 @@ dwv.gui.base.appendFileLoadHtml = function()
 
 /**
  * Display the file load HTML.
- * @method clearUrlLoadHtml
+ * @method displayFileLoadHtml
  * @static
  * @param {Boolean} bool True to display, false to hide.
  */
@@ -75,6 +79,70 @@ dwv.gui.base.displayFileLoadHtml = function(bool)
 {
     // file div element
     var filediv = document.getElementById("imagefilesdiv");
+    filediv.style.display = bool ? "" : "none";
+};
+
+/**
+ * Append the exportbox HTML to the page.
+ * @method appendExportboxHtml
+ * @static
+ */
+dwv.gui.base.appendExportboxHtml = function(){
+    // exporter select
+    var exporterSelector = dwv.html.createHtmlSelect("exporterSelect",dwv.io.exporters);
+    exporterSelector.onchange = dwv.gui.onChangeExporter;
+
+    // node
+    var node = document.getElementById("exporterlist");
+    // clear it
+    while(node.hasChildNodes()) {
+        node.removeChild(node.firstChild);
+    }
+    // append
+    node.appendChild(exporterSelector);
+    // trigger create event (mobile)
+    $("#exporterlist").trigger("create");
+};
+
+/**
+ * Append the export HTML to the page.
+ * @method appendExportHtml
+ * @static
+ */
+dwv.gui.base.appendExportHtml = function(){
+    // input
+    var exportOutput = document.createElement("input");
+    exportOutput.onchange = dwv.gui.onSaveFiles;
+    exportOutput.type = "button";
+    exportOutput.multiple = true;
+    exportOutput.id = "exportrois";
+    exportOutput.value = "Export File";
+    exportOutput.setAttribute("data-clear-btn","true");
+    exportOutput.setAttribute("data-mini","true");
+
+    // associated div
+    var fileLoadDiv = document.createElement("div");
+    fileLoadDiv.id = "roifilesdiv";
+    fileLoadDiv.style.display = "none";
+    fileLoadDiv.appendChild(exportOutput);
+
+    // node
+    var node = document.getElementById("exporterlist");
+    // append
+    node.appendChild(fileLoadDiv);
+    // trigger create event (mobile)
+    $("#exporterlist").trigger("create");
+};
+
+/**
+ * Display the export HTML.
+ * @method displayExportHtml
+ * @static
+ * @param {Boolean} bool True to display, false to hide.
+ */
+dwv.gui.base.displayExportHtml = function(bool){
+    // file div element
+    var filediv = document.getElementById("roifilesdiv");
     filediv.style.display = bool ? "" : "none";
 };
 

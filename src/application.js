@@ -28,6 +28,10 @@ dwv.App = function(type)
     var image = null;
     // View
     var view = null;
+
+    // DICOM info
+    var info = null;
+
     // Original image
     var originalImage = null;
     // Image data array
@@ -216,7 +220,7 @@ dwv.App = function(type)
         // clear objects
         image = null;
         view = null;
-
+        info = null;
     };
     
     /**
@@ -274,6 +278,7 @@ dwv.App = function(type)
     {
         // clear variables
         this.reset();
+        medianViewer.reset();
         // create IO
         var fileIO = new dwv.io.File();
         fileIO.onload = function (data) {
@@ -284,7 +289,6 @@ dwv.App = function(type)
                 isFirst = false;
             }
             else{
-                medianViewer.reset();
                 medianViewer.postLoadInit(data);
                 if( medianViewer.getDrawStage() ) {
                     // create slice draw layer
@@ -764,6 +768,26 @@ dwv.App = function(type)
         self.resetLayout();
         self.resize();
     }
+
+    /**
+     * Converts pixels coordinates to right-handed LPH (from right towards left,
+     * anterior towards posterior, from inferior towards superior) coordinates
+     * see: http://cmic.cs.ucl.ac.uk/fileadmin/cmic/Documents/DavidAtkinson/KCLDICOM_2011.pdf
+     * @method imageToLPHCoords
+     * @param number xCoord The x coordinate of the data point in image space
+     * @param number yCoord The y coordinate of the data point in image space
+     * @return {Array} A 3 point array containing the right-handed LPH coordinates
+     */
+    this.imageToLPHCoords = function(xCoord, yCoord){
+        var pos = Array(3);
+
+        for (var i = 0; i < 3; ++i)
+            pos[i] = info.ImagePositionPatient.value[i] +
+            xCoord * info.ImageOrientationPatient.value[i] * info.PixelSpacing.value[1] +
+            yCoord * info.ImageOrientationPatient.value[i+3] * info.PixelSpacing.value[0];
+
+        return pos;
+    };
     
     /**
      * Post load application initialisation. To be called once the DICOM has been parsed.
@@ -779,6 +803,7 @@ dwv.App = function(type)
         
         // get the view from the loaded data
         view = data.view;
+        info = data.info;
         // append the DICOM tags table
         dwv.gui.appendTagsTable(data.info);
         // store image

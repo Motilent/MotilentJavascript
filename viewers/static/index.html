@@ -31,6 +31,7 @@ body { background-color: #222; color: white;
 <script type="text/javascript" src="../../ext/openjpeg/openjpeg.js"></script>
 <script type="text/javascript" src="../../ext/kinetic/kinetic-v5.1.1-06.10.min.js"></script>
 <script type="text/javascript" src="../../ext/tinycolor/tinycolor.js"></script>
+<script type="text/javascript" src="../../ext/filesaver/FileSaver.min.js"></script>
 <!-- Local -->
 <script type="text/javascript" src="../../src/application.js"></script>
 <script type="text/javascript" src="../../src/dicom/dicomParser.js"></script>
@@ -101,14 +102,19 @@ body { background-color: #222; color: white;
 <div id="progressbar"></div>
 </div>
 
+  <!-- Export -->
+  <div id="exportData" title="Export">
+    <div id="exporterlist"></div>
+  </div>
+
 <!-- Toolbox -->
 <div id="toolbox" title="Toolbox">
 <ul id="toolList"></ul>
 </div>
 
 <!-- History -->
-<div id="history" title="History"></div>
-
+<!-- <div id="history" title="History"></div> -->
+  <div id="export" title="Export">
 <!-- Tags -->
 <div id="tags" title="Tags"></div>
 

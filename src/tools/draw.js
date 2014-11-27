@@ -328,14 +328,26 @@ dwv.tool.Draw = function (app)
      */
     var drawLayer = null;
 
+
     /**
-     * Add
+     * Return the created shapes
+     * @method getCreatedShapes
+     * @returns {Array} The array of shape arrays [Kinetic.Text, Kinetic.Shape]
+     */
+    this.getCreatedShapes = function(){
+        return createdShapes;
+    };
+
+    /**
+     * Add shape array to created shapes
      * @method addToCreatedShapes
-     * @param {Object} shape The KineticJS shape to add to the tool's collection of shapes
+     * @param {Array} arrShape The shape [Kinetic.Text, Kinetic.Shape] to add to the tool's collection of shapes
      */
     this.addToCreatedShapes = function(shape){
         createdShapes.push(shape);
     };
+
+
     
     /**
      * Handle mouse down event.
@@ -467,7 +479,7 @@ dwv.tool.Draw = function (app)
             // execute it
             command.execute();
             // save it in undo stack
-            app.getUndoStack().add(command);
+            //app.getUndoStack().add(command);
             
             // set shape on
             self.setShapeOn(activeShape, activeText);
@@ -510,7 +522,7 @@ dwv.tool.Draw = function (app)
             // execute it
             command.execute();
             // save it in undo stack
-            app.getUndoStack().add(command);
+            //app.getUndoStack().add(command);
 
             // set shape on
             self.setShapeOn(activeShape, activeText);
@@ -728,7 +740,7 @@ dwv.tool.Draw = function (app)
                 // delete command
                 var delcmd = new dwv.tool.DeleteShapeCommand(this, cmdName, drawLayer);
                 delcmd.execute();
-                app.getUndoStack().add(delcmd);
+                //app.getUndoStack().add(delcmd);
             }
             else {
                 // save drag move

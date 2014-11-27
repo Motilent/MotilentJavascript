@@ -270,6 +270,15 @@ dwv.App = function(type)
     };
 
     /**
+     * Handle export rois files event.
+     * @method onExportRois
+     */
+    this.onExportRois = function(){
+        var fileIO = new dwv.io.ExportROI();
+        fileIO.save("ROIs.csv");
+    };
+
+    /**
      * Load a list of files.
      * @method loadFiles
      * @param {Array} files The list of files to load.
@@ -782,9 +791,9 @@ dwv.App = function(type)
         var pos = Array(3);
 
         for (var i = 0; i < 3; ++i)
-            pos[i] = info.ImagePositionPatient.value[i] +
-            xCoord * info.ImageOrientationPatient.value[i] * info.PixelSpacing.value[1] +
-            yCoord * info.ImageOrientationPatient.value[i+3] * info.PixelSpacing.value[0];
+            pos[i] = Number(info.ImagePositionPatient.value[i]) +
+            xCoord * Number(info.ImageOrientationPatient.value[i]) * Number(info.PixelSpacing.value[1]) +
+            yCoord * Number(info.ImageOrientationPatient.value[i+3]) * Number(info.PixelSpacing.value[0]);
 
         return pos;
     };

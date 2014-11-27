@@ -326,7 +326,7 @@ dwv.tool.ShapeEditor = function ()
             var chgcmd = new dwv.tool.ChangeShapeCommand(
                     shape, cmdName, updateFunction, startAnchor, endAnchor, this.getLayer(), image);
             chgcmd.execute();
-            app.getUndoStack().add(chgcmd);
+            //app.getUndoStack().add(chgcmd);
             // reset start anchor
             startAnchor = endAnchor;
         });

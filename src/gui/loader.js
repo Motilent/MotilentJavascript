@@ -112,7 +112,7 @@ dwv.gui.base.appendExportboxHtml = function(){
 dwv.gui.base.appendExportHtml = function(){
     // input
     var exportOutput = document.createElement("input");
-    exportOutput.onchange = dwv.gui.onSaveFiles;
+    exportOutput.onclick = dwv.gui.onExportRois;
     exportOutput.type = "button";
     exportOutput.multiple = true;
     exportOutput.id = "exportrois";

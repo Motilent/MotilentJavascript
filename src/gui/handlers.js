@@ -66,14 +66,13 @@ dwv.gui.onChangeExporter = function(/*event*/)
 };
 
 /**
- * Handle save button press.
- * @method onChangeFiles
+ * Handle save rois press.
+ * @method onSaveRois
  * @static
- * @param {Object} event The change event.
  */
-dwv.gui.onSaveFiles = function(event)
+dwv.gui.onExportRois = function()
 {
-    //app.onSaveFiles(event);
+    app.onExportRois();
 };
 
 

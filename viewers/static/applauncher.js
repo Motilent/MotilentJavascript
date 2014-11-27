@@ -89,6 +89,8 @@ $(document).ready( function()
     dwv.tool.tools.propagate = new dwv.tool.Propagate(app, medianViewer, dwv.tool.tools.draw, dwv.tool.tools.draw_med);
     medianViewer.setToolBox(app.getToolBox());
 
+    dwv.io.exporters.ROIs.staticSetDrawTools(dwv.tool.tools.draw, dwv.tool.tools.draw_med);
+
 
     //dwv.tool.tools.livewire = new dwv.tool.Livewire(app);
     //dwv.tool.tools.filter = new dwv.tool.Filter(app);

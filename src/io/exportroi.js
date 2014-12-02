@@ -97,4 +97,36 @@ dwv.io.ExportROI.prototype.save = function(filename)
             }
         }
     }
+
+
+    // Now create csv file
+    var output = 'Timepoint,Type,Colour,Length/Area(mm),Points\n';
+    for (var i = 0; i < allLayers.length; ++i) {
+        for (var t = 0; t < 2; ++t) {
+
+            for (var r = 0; r < allLayers[i].Lines.length; ++r) {
+                output += i + ',Line,' + allLayers[i].Lines[r].colour + ',' + allLayers[i].Lines[r].length.match(/[0-9\.e\+]+/);
+                for (var p = 0; p < allLayers[i].Lines[r].points.length; ++p) {
+                    for (var x = 0; x < allLayers[i].Lines[r].points[p].length; ++x) {
+                        output += ',' + allLayers[i].Lines[r].points[p][x];
+                    }
+                }
+                output += '\n';
+            }
+
+            for (var r = 0; r < allLayers[i].ROIs.length; ++r) {
+                output += i + ',ROI,' + allLayers[i].ROIs[r].colour + ',' + parseFloat(allLayers[i].ROIs[r].area.match(/[0-9\.e\+]+/)).toFixed(1);
+                for (var p = 0; p < allLayers[i].ROIs[r].points.length; ++p) {
+                    for (var x = 0; x < allLayers[i].ROIs[r].points[p].length; ++x) {
+                        output += ',' + allLayers[i].ROIs[r].points[p][x];
+                    }
+                }
+                output += '\n';
+            }
+        }
+    }
+
+    var blob = new Blob([output], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, "ROIs.csv");
+
 };

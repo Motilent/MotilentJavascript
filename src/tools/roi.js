@@ -38,10 +38,16 @@ dwv.tool.RoiCreator = function (points, style, image)
     });
     // quantification
     var quant = image.quantifyROI(points);
-    var str = quant.area.toPrecision(4) + "mm" +String.fromCharCode(0x00B2);
+    var str = quant.area.toFixed(1) + "mm" +String.fromCharCode(0x00B2);
+    // Find highest y position
+    var topPoint = points[0];
+    for (var i = 1; i < points.length; ++i){
+        if (points[i].getY() > topPoint.getY())
+            topPoint = points[i];
+    }
     var ktext = new Kinetic.Text({
-        x: points[0].getX(),
-        y: points[0].getY(),
+        x: topPoint.getX(),
+        y: topPoint.getY() + 10,
         text: str,
         fontSize: 20 / interactionApp.getDrawStage().scale().x,
         fontFamily: "Verdana",
@@ -80,13 +86,22 @@ dwv.tool.UpdateRoi = function (kroi, anchor, image)
     var pointArr = [];
     for (var i =0; i < points.length; i+=2)
         pointArr.push(new dwv.math.Point2D(points[i],points[i+1]));
+
+    // Find highest y position
+    var topPoint = pointArr[0];
+    for (var i = 1; i < pointArr.length; ++i){
+        if (pointArr[i].getY() > topPoint.getY())
+            topPoint = pointArr[i];
+    }
     // update text
     var ktext = group.getChildren(function(node){
         return node.name() === 'text';
     })[0];
     if ( ktext ) {
+        ktext.x(topPoint.getX());
+        ktext.y(topPoint.getY() + 10);
         var quant = image.quantifyROI( pointArr );
-        var str = quant.area.toPrecision(4) + "mm" +String.fromCharCode(0x00B2);
+        var str = quant.area.toFixed(1) + "mm" +String.fromCharCode(0x00B2);
         ktext.text(str);
     }
 };

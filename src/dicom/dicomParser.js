@@ -636,9 +636,16 @@ dwv.dicom.DicomParser.prototype.createImage = function()
             parseFloat(this.dicomElements.ImagePositionPatient.value[1]),
             parseFloat(this.dicomElements.ImagePositionPatient.value[2]) ];
     }
+
+
+    // temporal position
+    var temporalPosition = -1;
+    if( this.dicomElements.TemporalPositionIdentifier ) {
+        temporalPosition = parseFloat(this.dicomElements.TemporalPositionIdentifier.value[0]);
+    }
     
     // image
-    var image = new dwv.image.Image( size, spacing, buffer, [slicePosition] );
+    var image = new dwv.image.Image( size, spacing, buffer, [slicePosition], [temporalPosition] );
     // photometricInterpretation
     if( this.dicomElements.PhotometricInterpretation ) {
         var photo = dwv.utils.cleanString(

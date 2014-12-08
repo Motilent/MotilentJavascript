@@ -44,11 +44,18 @@ dwv.gui.onChangeLoader = function(/*event*/)
 {
     if( this.value === "file") {
         dwv.gui.displayUrlLoadHtml(false);
+        dwv.gui.displayDeformationLoadHtml(false);
         dwv.gui.displayFileLoadHtml(true);
     }
     else if( this.value === "url") {
         dwv.gui.displayFileLoadHtml(false);
+        dwv.gui.displayDeformationLoadHtml(false);
         dwv.gui.displayUrlLoadHtml(true);
+    }
+    else if( this.value === "Deformation File") {
+        dwv.gui.displayUrlLoadHtml(false);
+        dwv.gui.displayFileLoadHtml(false);
+        dwv.gui.displayDeformationLoadHtml(true);
     }
 };
 
@@ -86,6 +93,18 @@ dwv.gui.onChangeFiles = function(event)
 {
     app.onChangeFiles(event);
 };
+
+/**
+ * Handle deformation file change.
+ * @method onChangeDeformationFile
+ * @static
+ * @param {Object} event The change event.
+ */
+dwv.gui.onChangeDeformationFile = function(event)
+{
+    app.onChangeDeformationFile(event);
+};
+
 
 /**
  * Handle URL change.

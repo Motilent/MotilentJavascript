@@ -143,8 +143,9 @@ dwv.image.Spacing.prototype.equals = function(rhs) {
  * @param {Spacing} spacing The spacing of the image.
  * @param {Array} buffer The image data.
  * @param {Array} slicePositions The slice positions.
+ * @param {Array} temporalPositions The temporal positions.
  */
-dwv.image.Image = function(size, spacing, buffer, slicePositions)
+dwv.image.Image = function(size, spacing, buffer, slicePositions, temporalPositions)
 {
     /**
      * Rescale slope.
@@ -241,6 +242,13 @@ dwv.image.Image = function(size, spacing, buffer, slicePositions)
      * @return {Array} The slice positions.
      */ 
     this.getSlicePositions = function() { return slicePositions; };
+
+    /**
+     * Get the temporal positions.
+     * @method getTemporalPositions
+     * @return {Array} The temporal positions.
+     */
+    this.getTemporalPositions = function() {return temporalPositions;};
     
     /**
      * Get the rescale slope.
@@ -368,19 +376,20 @@ dwv.image.Image = function(size, spacing, buffer, slicePositions)
         
         // find index where to append slice
         var closestSliceIndex = 0;
-        var slicePosition = rhs.getSlicePositions()[0];
-        var minDiff = Math.abs( slicePositions[0][2] - slicePosition[2] );
+        var temporalPosition = rhs.getTemporalPositions()[0];
+        console.log('temporal positions: ' + temporalPosition);
+        var minDiff = Math.abs( temporalPositions[0] - temporalPosition );
         var diff = 0;
-        for( var i = 0; i < slicePositions.length; ++i )
+        for( var i = 0; i < temporalPositions.length; ++i )
         {
-            diff = Math.abs( slicePositions[i][2] - slicePosition[2] );
+            diff = Math.abs( temporalPositions[i] - temporalPosition );
             if( diff < minDiff ) 
             {
                 minDiff = diff;
                 closestSliceIndex = i;
             }
         }
-        diff = slicePositions[closestSliceIndex][2] - slicePosition[2];
+        diff = temporalPositions[closestSliceIndex] - temporalPosition;
         var newSliceNb = ( diff > 0 ) ? closestSliceIndex : closestSliceIndex + 1;
         
         // new size
@@ -418,7 +427,7 @@ dwv.image.Image = function(size, spacing, buffer, slicePositions)
         }
         
         // update slice positions
-        slicePositions.splice(newSliceNb, 0, slicePosition);
+        temporalPositions.splice(newSliceNb, 0, temporalPosition);
         
         // copy to class variables
         size = newSize;

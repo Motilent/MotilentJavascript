@@ -63,6 +63,7 @@ dwv.gui.cleanUndoHtml = function ()
  */
 dwv.gui.addCommandToUndoHtml = function(commandName)
 {
+    return;
     var select = document.getElementById("history_list");
     // remove undone commands
     var count = select.length - (select.selectedIndex+1);

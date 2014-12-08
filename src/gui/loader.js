@@ -83,6 +83,49 @@ dwv.gui.base.displayFileLoadHtml = function(bool)
 };
 
 /**
+ * Append the file deformation HTML to the page.
+ * @method appendDeformationLoadHtml
+ * @static
+ */
+dwv.gui.base.appendDeformationLoadHtml = function()
+{
+    // input
+    var fileLoadInput = document.createElement("input");
+    fileLoadInput.onchange = dwv.gui.onChangeDeformationFile;
+    fileLoadInput.type = "file";
+    fileLoadInput.multiple = false;
+    fileLoadInput.id = "deformationfiles";
+    fileLoadInput.setAttribute("data-clear-btn","true");
+    fileLoadInput.setAttribute("data-mini","true");
+
+    // associated div
+    var fileLoadDiv = document.createElement("div");
+    fileLoadDiv.id = "deformationfilesdiv";
+    fileLoadDiv.style.display = "none";
+    fileLoadDiv.appendChild(fileLoadInput);
+
+    // node
+    var node = document.getElementById("loaderlist");
+    // append
+    node.appendChild(fileLoadDiv);
+    // trigger create event (mobile)
+    $("#loaderlist").trigger("create");
+};
+
+/**
+ * Display the deformation load HTML.
+ * @method displayDeformationLoadHtml
+ * @static
+ * @param {Boolean} bool True to display, false to hide.
+ */
+dwv.gui.base.displayDeformationLoadHtml = function(bool)
+{
+    // file div element
+    var filediv = document.getElementById("deformationfilesdiv");
+    filediv.style.display = bool ? "" : "none";
+};
+
+/**
  * Append the exportbox HTML to the page.
  * @method appendExportboxHtml
  * @static

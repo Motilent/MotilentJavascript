@@ -69,6 +69,15 @@ dwv.gui.displayFileLoadHtml = function(bool){
     dwv.gui.base.displayFileLoadHtml(bool);
 };
 
+
+// Deformation field loader
+dwv.gui.appendDeformationLoadHtml = function(){
+    dwv.gui.base.appendDeformationLoadHtml();
+};
+dwv.gui.displayDeformationLoadHtml = function(bool){
+    dwv.gui.base.displayDeformationLoadHtml(bool);
+};
+
 // Exporter
 dwv.gui.appendExportHtml = function(){
     dwv.gui.base.appendExportHtml();

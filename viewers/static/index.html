@@ -52,7 +52,10 @@ body { background-color: #222; color: white;
 <script type="text/javascript" src="../../src/image/luts.js"></script>
 <script type="text/javascript" src="../../src/image/reader.js"></script>
 <script type="text/javascript" src="../../src/image/view.js"></script>
-<script type="text/javascript" src="../../src/io/file.js"></script>
+  <script type="text/javascript" src="../../src/deformation/deformationdata.js"></script>
+  <script type="text/javascript" src="../../src/deformation/deformationreader.js"></script>
+  <script type="text/javascript" src="../../src/io/deformationfile.js"></script>
+  <script type="text/javascript" src="../../src/io/file.js"></script>
 <script type="text/javascript" src="../../src/io/url.js"></script>
   <script type="text/javascript" src="../../src/io/exportroi.js"></script>
 <script type="text/javascript" src="../../src/math/bucketQueue.js"></script>
@@ -122,8 +125,7 @@ body { background-color: #222; color: white;
 <!-- Help -->
 <div id="help" title="Help"></div>
 
-
-
+    <canvas id="testcanvas"  width="400" height="400" ></canvas>
 
 <!-- Layer Container -->
 <div id="layerDialog" title="Motility Images">

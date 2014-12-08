@@ -56,6 +56,8 @@ $(document).ready( function()
     dwv.io.loaders = {};
     dwv.io.loaders.file = dwv.io.File;
     dwv.io.loaders.url = dwv.io.Url;
+    dwv.io.loaders["Deformation File"] = dwv.io.DeformationFile;
+    dwv.io.loaders["Parametric Map"] = dwv.io.ParametricMap;
 
     // Add exporters to exporter list
     dwv.io.exporters = {};
@@ -67,6 +69,7 @@ $(document).ready( function()
     // append loaders HTML
     dwv.gui.appendFileLoadHtml();
     dwv.gui.appendUrlLoadHtml();
+    dwv.gui.appendDeformationLoadHtml();
     dwv.gui.displayFileLoadHtml(true);
 
 

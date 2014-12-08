@@ -29,6 +29,9 @@ dwv.App = function(type)
     // View
     var view = null;
 
+    // Deformation field
+    var deffField = null;
+
     // DICOM info
     var info = null;
 
@@ -86,7 +89,14 @@ dwv.App = function(type)
      * @return {Image} The associated view.
      */
     this.getView = function() { return view; };
-    
+
+    /**
+     * Get the deformation field
+     * @method getDeformationField
+     * @returns {Object} The deformation field object
+     */
+    this.getDeformationField = function() {return deffField;};
+
     /** 
      * Set the view.
      * @method setImage
@@ -270,6 +280,17 @@ dwv.App = function(type)
     };
 
     /**
+     * Handle deformation files change.
+     * @method onChangeDeformationFiles
+     * @static
+     * @param {Object} event The change event.
+     */
+    this.onChangeDeformationFile = function(event)
+    {
+        this.loadDeformationFile(event.target.files[0]);
+    };
+
+    /**
      * Handle export rois files event.
      * @method onExportRois
      */
@@ -291,20 +312,27 @@ dwv.App = function(type)
         // create IO
         var fileIO = new dwv.io.File();
         fileIO.onload = function (data) {
+
+
+
             var isFirst = true;
 
             if( image ) {
                 image.appendSlice( data.view.getImage() );
                 isFirst = false;
+                if (deffField) {
+                    deffField.SetColumns(image.getNumberOfColumns());
+                    deffField.SetRows(image.getNumberOfRows());
+                }
             }
-            else{
+            if (image  && image.getSize().getNumberOfSlices() == 15){
                 medianViewer.postLoadInit(data);
                 if( medianViewer.getDrawStage() ) {
                     // create slice draw layer
                     var drawLayer = new Kinetic.Layer({
                         listening: false,
                         hitGraphEnabled: false,
-                        visible: isFirst
+                        visible: true
                     });
                     // add to layers array
                     medianViewer.getDrawLayers().push(drawLayer);
@@ -318,8 +346,11 @@ dwv.App = function(type)
                 var drawLayer = new Kinetic.Layer({
                     listening: false,
                     hitGraphEnabled: false,
-                    visible: isFirst
+                    visible: isFirst,
+                    fromfile: data.file.name
                 });
+                console.log(data.file.name);
+                console.log(data.info.TriggerTime.value[0]);
                 // add to layers array
                 drawLayers.push(drawLayer);
                 // add the layer to the stage
@@ -327,10 +358,40 @@ dwv.App = function(type)
             }
         };
         fileIO.onerror = function(error){ handleError(error); };
+        fileIO.noFiles = files.length;
+        fileIO.filesLoaded = 0;
+        fileIO.onloadend = function(event){
+            console.log(++this.fileio.filesLoaded);
+            if (this.fileio.filesLoaded == this.fileio.noFiles)
+                var t = 0;
+        };
         // main load (asynchronous)
         fileIO.load(files);
     };
-    
+
+    /**
+     * Load a deformation file.
+     * @method loadDeformationFiles
+     * @param string file The file to load.
+     */
+    this.loadDeformationFile = function(file){
+        var defIO = new dwv.io.DeformationFile();
+        defIO.onload = function(data){
+            deffField = data;
+            if (image) {
+                deffField.SetColumns(image.getSize().getNumberOfColumns());
+                deffField.SetRows(image.getSize().getNumberOfRows());
+            }
+            var test = deffField.GetInterpolatedScaledImageData(257,278,0,0);
+        };
+        defIO.onerror= function(error){
+            handleError(error);
+        };
+
+        defIO.load(file);
+
+    };
+
     /**
      * Handle change url event.
      * @method onChangeURL
@@ -866,10 +927,11 @@ dwv.App = function(type)
         if (appType == 'motility') {
             toolBox.init();
             toolBox.display(true);
-            // init W/L display
-            self.initWLDisplay();
+
         }
-        
+        else
+        // init W/L display
+        self.initWLDisplay();
 
     }
     

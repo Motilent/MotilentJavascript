@@ -15,6 +15,7 @@ dwv.io.File = function()
 {
     this.onload = null;
     this.onerror = null;
+    this.onloadend = null;
 };
 
 /**
@@ -27,6 +28,7 @@ dwv.io.File.prototype.load = function(ioArray)
     // create closure to the onload method
     var onload = this.onload;
     var onerror = this.onerror;
+    var onloadend = this.onloadend;
 
     // Request error
     var onErrorImageReader = function(event)
@@ -49,7 +51,8 @@ dwv.io.File.prototype.load = function(ioArray)
         // parse DICOM file
         try {
             var tmpdata = dwv.image.getDataFromDicomBuffer(event.target.result);
-            // call listener
+            tmpdata.file = event.target.file;
+                // call listener
             onload(tmpdata);
         } catch(error) {
             onerror(error);
@@ -103,6 +106,9 @@ dwv.io.File.prototype.load = function(ioArray)
             reader.onload = onLoadDicomReader;
             reader.onprogress = dwv.gui.updateProgress;
             reader.onerror = onErrorDicomReader;
+            reader.onloadend = onloadend;
+            reader.fileio = this;
+            reader.file = file;
             reader.readAsArrayBuffer(file);
         }
     }

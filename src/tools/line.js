@@ -12,6 +12,7 @@ var Kinetic = Kinetic || {};
  * @static
  * @param {Array} points The points from which to extract the line.
  * @param {Style} style The drawing style.
+ * @param {Object} image The image object
  */ 
 dwv.tool.LineCreator = function (points, style, image)
 {
@@ -28,8 +29,7 @@ dwv.tool.LineCreator = function (points, style, image)
         name: "shape"
     });
     // quantification
-    var quant = image.quantifyLine( line );
-    var str = quant.length.toPrecision(4) + " mm";
+    var str = dwv.tool.GetLineText( line, image );
     var ktext = new Kinetic.Text({
         x: line.getEnd().getX(),
         y: line.getEnd().getY() - 15,
@@ -49,6 +49,7 @@ dwv.tool.LineCreator = function (points, style, image)
  * @static
  * @param {Object} kline The line shape to update.
  * @param {Object} anchor The active anchor.
+ * @param {Object} image The image object
  */ 
 dwv.tool.UpdateLine = function (kline, anchor, image)
 {
@@ -88,10 +89,22 @@ dwv.tool.UpdateLine = function (kline, anchor, image)
         var p2d0 = new dwv.math.Point2D(begin.x(), begin.y());
         var p2d1 = new dwv.math.Point2D(end.x(), end.y());
         var line = new dwv.math.Line(p2d0, p2d1);
-        var quant = image.quantifyLine( line );
-        var str = quant.length.toPrecision(4) + " mm";
+        var str = dwv.tool.GetLineText( line, image );
         var textPos = { 'x': line.getEnd().getX(), 'y': line.getEnd().getY() - 15 };
         ktext.position( textPos );
         ktext.text(str);
     }
+};
+
+
+/**
+ * Get the text for a line
+ * @static
+ * @param {Object} line The line object
+ * @param {Object} image The image object
+ * @return String The text description string
+ */
+dwv.tool.GetLineText = function (line, image){
+    var quant = image.quantifyLine( line );
+    return quant.length.toPrecision(4) + " mm";
 };

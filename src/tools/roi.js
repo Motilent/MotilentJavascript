@@ -37,8 +37,7 @@ dwv.tool.RoiCreator = function (points, style, image)
         tension: 0.3
     });
     // quantification
-    var quant = image.quantifyROI(points);
-    var str = quant.area.toFixed(1) + "mm" +String.fromCharCode(0x00B2);
+    var str = dwv.tool.GetROIText(roi, image);
     // Find highest y position
     var topPoint = points[0];
     for (var i = 1; i < points.length; ++i){
@@ -62,7 +61,7 @@ dwv.tool.RoiCreator = function (points, style, image)
  * Update a roi shape.
  * @method UpdateRoi
  * @static
- * @param {Object} kroi The line shape to update.
+ * @param {Object} kroi The roi shape to update.
  * @param {Object} anchor The active anchor.
  */ 
 dwv.tool.UpdateRoi = function (kroi, anchor, image)
@@ -87,6 +86,10 @@ dwv.tool.UpdateRoi = function (kroi, anchor, image)
     for (var i =0; i < points.length; i+=2)
         pointArr.push(new dwv.math.Point2D(points[i],points[i+1]));
 
+    var roi = new dwv.math.ROI();
+    // add input points to the ROI
+    roi.addPoints(pointArr);
+
     // Find highest y position
     var topPoint = pointArr[0];
     for (var i = 1; i < pointArr.length; ++i){
@@ -100,8 +103,21 @@ dwv.tool.UpdateRoi = function (kroi, anchor, image)
     if ( ktext ) {
         ktext.x(topPoint.getX());
         ktext.y(topPoint.getY() + 10);
-        var quant = image.quantifyROI( pointArr );
-        var str = quant.area.toFixed(1) + "mm" +String.fromCharCode(0x00B2);
+        var str = dwv.tool.GetROIText(roi, image);
         ktext.text(str);
     }
 };
+
+/**
+ * Get the text for a line
+ * @method GetROIText
+ * @static
+ * @param {Object} roi The ROI object
+ * @param {Object} image The image object
+ * @return String The text description string
+ */
+dwv.tool.GetROIText = function (roi, image){
+    var quant = image.quantifyROI(roi.getPoints());
+    return str = quant.area.toFixed(1) + "mm" + String.fromCharCode(0x00B2);
+};
+

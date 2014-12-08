@@ -78,7 +78,7 @@ dwv.io.ExportROI.prototype.save = function(filename)
                     area: currentText.text()
                 };
                 for (var p = 0; p < currentShape.points().length; p+=2){
-                    var newPoint = app.imageToLPHCoords(currentShape.points()[p],currentShape.points()[p+1]);
+                    var newPoint = app.imageToLPHCoords(currentShape.points()[p]-0.5,currentShape.points()[p+1]-0.5);
                     newROI.points.push(newPoint);
                 }
                 allLayers[i].ROIs.push(newROI);
@@ -90,7 +90,7 @@ dwv.io.ExportROI.prototype.save = function(filename)
                     length: currentText.text()
                 };
                 for (var p = 0; p < currentShape.points().length; p+=2){
-                    var newPoint = app.imageToLPHCoords(currentShape.points()[p],currentShape.points()[p+1]);
+                    var newPoint = app.imageToLPHCoords(currentShape.points()[p]-0.5,currentShape.points()[p+1]-0.5);
                     newLine.points.push(newPoint);
                 }
                 allLayers[i].Lines.push(newLine);
@@ -100,7 +100,7 @@ dwv.io.ExportROI.prototype.save = function(filename)
 
 
     // Now create csv file
-    var output = 'Timepoint,Type,Colour,Length/Area(mm),Points\n';
+    var output = 'Timepoint,Type,Colour,Length/Area(mm),Mean S.D. Jacobian,Points\n';
     for (var i = 0; i < allLayers.length; ++i) {
         for (var t = 0; t < 2; ++t) {
 

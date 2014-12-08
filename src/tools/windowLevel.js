@@ -33,6 +33,7 @@ dwv.tool.updatePostionValue = function(i,j)
 dwv.tool.updateWindowingData = function(wc,ww)
 {
     app.getView().setWindowLevel(wc,ww);
+    medianViewer.getView().setWindowLevel(wc,ww);
 };
 
 /**

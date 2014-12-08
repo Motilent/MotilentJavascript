@@ -362,6 +362,14 @@ dwv.math.ROI = function()
      * @return {Object} The Point2D at the given index.
      */ 
     this.getPoint = function(index) { return points[index]; };
+
+    /**
+     * Get all points
+     * @method getPoints
+     * @return {Array} The Point2D array
+     */
+    this.getPoints = function() { return points; };
+
     /**
      * Get the length of the point list.
      * @method getLength

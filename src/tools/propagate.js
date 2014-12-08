@@ -36,6 +36,20 @@ dwv.tool.Propagate = function (motilityApp, medianApp, motilityDrawTool, medianD
         dwv.gui.displayPropagateHtml(flag);
     };
 
+
+    function transformPointArray(points, timePoint){
+        var deffField = app.getDeformationField();
+        if (deffField == null) {
+            return points;
+        }
+        var newPoints = [];
+        for (var i = 0; i < points.length; i+=2){
+            newPoints.push(points[i] + deffField.GetInterpolatedScaledImageData(points[i], points[i+1], timePoint, 0));
+            newPoints.push(points[i+1] + deffField.GetInterpolatedScaledImageData(points[i], points[i+1], timePoint, 1));
+        }
+        return newPoints;
+    }
+
     /**
      * Copy all shape groups from the current median layer to the current layer of the motility viewer
      * @method copyMedianLayer
@@ -46,6 +60,7 @@ dwv.tool.Propagate = function (motilityApp, medianApp, motilityDrawTool, medianD
             var shapeGroup = sourceLayer.children[i].clone();
 
             // Transform all shapes in shapeGroup
+            shapeGroup.children[0]
 
             // Copy to other viewer
             shapeGroup.moveTo(motilityApp.getDrawLayer());
@@ -74,20 +89,45 @@ dwv.tool.Propagate = function (motilityApp, medianApp, motilityDrawTool, medianD
 
             for (var i = 0; i < sourceLayer.children.length; ++i) {
                 var shapeGroup = sourceLayer.children[i].clone();
+                if (shapeGroup.children.length != 2){
+                    console.log (shapeGroup.children.length);
+                    continue;
+                }
+
 
                 // Transform all shapes in shapeGroup
+                var newPoints = transformPointArray(shapeGroup.children[0].points(),layer);
+
+                shapeGroup.children[0].points(newPoints);
+
+                var newText = "";
+
+                var shapePoints = [];
+                for (var p = 0; p < newPoints.length; p+=2 )
+                    shapePoints.push(new dwv.math.Point2D(newPoints[p],newPoints[p+1]));
+
+                if (newPoints.length > 4) {
+                    var roi = new dwv.math.ROI();
+                    roi.addPoints(shapePoints);
+                    newText = dwv.tool.GetROIText(roi, motilityApp.getImage());
+                }
+                else {
+                    newText = dwv.tool.GetLineText(
+                        new dwv.math.Line(shapePoints[0],shapePoints[shapePoints.length-1]),
+                        motilityApp.getImage());
+                }
+                shapeGroup.children[1].text(newText);
+
 
                 // Copy to other viewer
                 shapeGroup.moveTo(destinationLayer);
                 destinationLayer.draw();
 
+                motilityDrawTool.addToCreatedShapes({
+                    "shape": shapeGroup.children[0],
+                    "text": shapeGroup.children[1]})
 
-                if (shapeGroup.children.length == 2) {
-                    motilityDrawTool.addToCreatedShapes({
-                        "shape": shapeGroup.children[0],
-                        "text": shapeGroup.children[1]
-                    });
-                }
+
             }
         }
     };

@@ -16,14 +16,31 @@ dwv.deformationfield = dwv.deformationfield || {};
  * @method getDataFromBuffer
  * @static
  * @param {Array} buffer The input data buffer.
- * @param number noCols The number of columns
- * @param number noRows The number of rows
  * @return Object The corresponding deformation fields
  */
 
-dwv.deformationfield.getDataFromBuffer = function(buffer, noCols, noRows, noTimePoints, noDimensions)
+dwv.deformationfield.getDataFromBuffer = function(buffer)
 {
-    var floatArray = new Float32Array(buffer);
+    var dView = new DataView(buffer);
+    var noDimensions = 2;
+    var fieldSignature = new Uint8Array(buffer, 0 ,8);
+    var headerChecksum = dView.getUint8(8, true);
+    var majorVersion = dView.getUint8(9, true);
+    var minorVersion = dView.getUint8(10, true);
+    var offsetToData = dView.getUint32(16, true);
+    var dataLength = dView.getUint32(20, true);
+    var noCols = dView.getUint16(24, true);
+    var noRows = dView.getUint16(26, true);
+    var noSlices = dView.getUint16(28, true);
+    var noTimePoints = dView.getUint16(30, true);
+    var dataChecksum = dView.getUint8(buffer.bytelength-1, true);
+
+    console.log('File version ' + majorVersion + '.' + minorVersion);
+    console.log('Number of columns ' + noCols);
+    console.log('Number of rows ' + noRows);
+    console.log('Number of time points ' + noTimePoints);
+
+    var floatArray = new Float32Array(buffer, offsetToData, dataLength);
     if (floatArray.length != noCols*noRows*noTimePoints*noDimensions){
         alert("File dimensions mismatch");
         return null;

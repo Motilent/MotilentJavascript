@@ -291,6 +291,17 @@ dwv.App = function(type)
     };
 
     /**
+     * Handle parametric map files change.
+     * @method onChangeParametricMapFile
+     * @static
+     * @param {Object} event The change event.
+     */
+    this.onChangeParametricMapFile = function(event)
+    {
+        this.loadParametricMapFile(event.target.files[0]);
+    };
+
+    /**
      * Handle export rois files event.
      * @method onExportRois
      */
@@ -349,8 +360,6 @@ dwv.App = function(type)
                     visible: isFirst,
                     fromfile: data.file.name
                 });
-                console.log(data.file.name);
-                console.log(data.info.TriggerTime.value[0]);
                 // add to layers array
                 drawLayers.push(drawLayer);
                 // add the layer to the stage
@@ -362,8 +371,6 @@ dwv.App = function(type)
         fileIO.filesLoaded = 0;
         fileIO.onloadend = function(event){
             console.log(++this.fileio.filesLoaded);
-            if (this.fileio.filesLoaded == this.fileio.noFiles)
-                var t = 0;
         };
         // main load (asynchronous)
         fileIO.load(files);
@@ -371,7 +378,7 @@ dwv.App = function(type)
 
     /**
      * Load a deformation file.
-     * @method loadDeformationFiles
+     * @method loadDeformationFile
      * @param string file The file to load.
      */
     this.loadDeformationFile = function(file){
@@ -382,7 +389,6 @@ dwv.App = function(type)
                 deffField.SetColumns(image.getSize().getNumberOfColumns());
                 deffField.SetRows(image.getSize().getNumberOfRows());
             }
-            var test = deffField.GetInterpolatedScaledImageData(257,278,0,0);
         };
         defIO.onerror= function(error){
             handleError(error);
@@ -391,6 +397,26 @@ dwv.App = function(type)
         defIO.load(file);
 
     };
+
+    /**
+     * Load a parametric map file.
+     * @method loadParametricMapFile
+     * @param string file The file to load.
+     */
+    this.loadParametricMapFile = function(file){
+        var paraIO = new dwv.io.ParametricMapFile();
+        paraIO.onload = function(data){
+
+        };
+        paraIO.onerror= function(error){
+            handleError(error);
+        };
+
+        paraIO.load(file);
+
+    };
+
+
 
     /**
      * Handle change url event.

@@ -43,7 +43,7 @@ dwv.io.ParametricMapFile.prototype.load = function(file)
     {
         // parse file
         try {
-            var tmpdata = dwv.deformationfield.getDataFromBuffer(event.target.result, 256, 256);
+            var tmpdata = dwv.parametricmap.getDataFromBuffer(event.target.result);
             // call listener
             onload(tmpdata);
         } catch(error) {

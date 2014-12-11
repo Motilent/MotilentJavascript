@@ -94,7 +94,6 @@ dwv.tool.Propagate = function (motilityApp, medianApp, motilityDrawTool, medianD
                     continue;
                 }
 
-
                 // Transform all shapes in shapeGroup
                 var newPoints = transformPointArray(shapeGroup.children[0].points(),layer);
 

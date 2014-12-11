@@ -125,6 +125,50 @@ dwv.gui.base.displayDeformationLoadHtml = function(bool)
     filediv.style.display = bool ? "" : "none";
 };
 
+
+/**
+ * Append the file parametric map HTML to the page.
+ * @method appendParametricMapLoadHtml
+ * @static
+ */
+dwv.gui.base.appendParametricMapLoadHtml = function()
+{
+    // input
+    var fileLoadInput = document.createElement("input");
+    fileLoadInput.onchange = dwv.gui.onChangeParametricMapFile;
+    fileLoadInput.type = "file";
+    fileLoadInput.multiple = false;
+    fileLoadInput.id = "paremetricmapfiles";
+    fileLoadInput.setAttribute("data-clear-btn","true");
+    fileLoadInput.setAttribute("data-mini","true");
+
+    // associated div
+    var fileLoadDiv = document.createElement("div");
+    fileLoadDiv.id = "parametricmapfilesdiv";
+    fileLoadDiv.style.display = "none";
+    fileLoadDiv.appendChild(fileLoadInput);
+
+    // node
+    var node = document.getElementById("loaderlist");
+    // append
+    node.appendChild(fileLoadDiv);
+    // trigger create event (mobile)
+    $("#loaderlist").trigger("create");
+};
+
+/**
+ * Display the parametric map load HTML.
+ * @method displayParametricMapLoadHtml
+ * @static
+ * @param {Boolean} bool True to display, false to hide.
+ */
+dwv.gui.base.displayParametricMapLoadHtml = function(bool)
+{
+    // file div element
+    var filediv = document.getElementById("parametricmapfilesdiv");
+    filediv.style.display = bool ? "" : "none";
+};
+
 /**
  * Append the exportbox HTML to the page.
  * @method appendExportboxHtml

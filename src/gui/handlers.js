@@ -45,17 +45,26 @@ dwv.gui.onChangeLoader = function(/*event*/)
     if( this.value === "file") {
         dwv.gui.displayUrlLoadHtml(false);
         dwv.gui.displayDeformationLoadHtml(false);
+        dwv.gui.displayParametricMapLoadHtml(false);
         dwv.gui.displayFileLoadHtml(true);
     }
     else if( this.value === "url") {
         dwv.gui.displayFileLoadHtml(false);
         dwv.gui.displayDeformationLoadHtml(false);
+        dwv.gui.displayParametricMapLoadHtml(false);
         dwv.gui.displayUrlLoadHtml(true);
     }
     else if( this.value === "Deformation File") {
         dwv.gui.displayUrlLoadHtml(false);
         dwv.gui.displayFileLoadHtml(false);
+        dwv.gui.displayParametricMapLoadHtml(false);
         dwv.gui.displayDeformationLoadHtml(true);
+    }
+    else if (this.value === "Parametric Map"){
+        dwv.gui.displayUrlLoadHtml(false);
+        dwv.gui.displayFileLoadHtml(false);
+        dwv.gui.displayDeformationLoadHtml(false);
+        dwv.gui.displayParametricMapLoadHtml(true);
     }
 };
 
@@ -103,6 +112,17 @@ dwv.gui.onChangeFiles = function(event)
 dwv.gui.onChangeDeformationFile = function(event)
 {
     app.onChangeDeformationFile(event);
+};
+
+/**
+ * Handle parametric map file change.
+ * @method onChangeParametricMapFile
+ * @static
+ * @param {Object} event The change event.
+ */
+dwv.gui.onChangeParametricMapFile = function(event)
+{
+    medianViewer.onChangeParametricMapFile(event);
 };
 
 

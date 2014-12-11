@@ -78,6 +78,15 @@ dwv.gui.displayDeformationLoadHtml = function(bool){
     dwv.gui.base.displayDeformationLoadHtml(bool);
 };
 
+// Parametric map loader
+dwv.gui.appendParametricMapLoadHtml = function(){
+    dwv.gui.base.appendParametricMapLoadHtml();
+};
+
+dwv.gui.displayParametricMapLoadHtml = function(bool){
+    dwv.gui.base.displayParametricMapLoadHtml(bool);
+};
+
 // Exporter
 dwv.gui.appendExportHtml = function(){
     dwv.gui.base.appendExportHtml();

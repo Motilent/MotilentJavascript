@@ -70,6 +70,7 @@ $(document).ready( function()
     dwv.gui.appendFileLoadHtml();
     dwv.gui.appendUrlLoadHtml();
     dwv.gui.appendDeformationLoadHtml();
+    dwv.gui.appendParametricMapLoadHtml();
     dwv.gui.displayFileLoadHtml(true);
 
 

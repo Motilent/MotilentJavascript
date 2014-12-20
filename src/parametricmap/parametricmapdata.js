@@ -23,52 +23,109 @@ dwv.parametricmap.ParametricMapData = function(noColumns, noRows, floatArray){
     var maxValue = -Infinity;
     var minValue = Infinity;
 
+    for (var i = 0; i < noColumns*noRows; ++i){
+        if (floatArray[i] < minValue)
+            minValue = floatArray[i];
+        if (floatArray[i] > maxValue)
+            maxValue = floatArray[i];
+    }
+
+    var jet = [
+        {pct: 0, colour: {r: 0, g: 0, b: 131}},
+        {pct: 0.125, colour: {r: 0, g: 60, b: 170}},
+        {pct: 0.375, colour: {r: 5, g: 255, b: 255}},
+        {pct: 0.625, colour: {r: 255, g: 255, b: 0}},
+        {pct: 0.875, colour: {r: 250, g: 0, b: 0}},
+        {pct: 1, colour: {r: 128, g: 0, b: 0}}];
+
+    var percentColours = jet;
+
+    var GetColourForPercentage = function(pct) {
+        for (var i = 0; i < percentColours.length; i++) {
+            if (pct <= percentColours[i].pct) {
+                var lower = percentColours[i - 1] || { pct: 0.1, colour: { r: 0x0, g: 0x00, b: 0 } };
+                var upper = percentColours[i];
+                var range = upper.pct - lower.pct;
+                var rangePct = (pct - lower.pct) / range;
+                var pctLower = 1 - rangePct;
+                var pctUpper = rangePct;
+                var colour = {
+                    r: Math.floor(lower.colour.r * pctLower + upper.colour.r * pctUpper),
+                    g: Math.floor(lower.colour.g * pctLower + upper.colour.g * pctUpper),
+                    b: Math.floor(lower.colour.b * pctLower + upper.colour.b * pctUpper)
+                };
+                return colour;
+            }
+        }
+    };
+
     var canvas = document.createElement('canvas');
     canvas.width = noColumns;
     canvas.height = noRows;
-    var ctx = canvas.getContext('2d');
-    var imageData = ctx.createImageData(noColumns, noRows);
 
-    for (var i =0; i < imageData.length; ++i){
-        imageData[i] = 100;
-    }
-    var testImage =  new Image();
-    testImage.src = imageData;
-
-    var test = new Kinetic.Image({
-        width: noColumns,
-        height: noRows
-    });
-
-    var stage = new Kinetic.Stage({
-        container: 'drawDiv',
-        width: noColumns,
-        height: noRows
-    });
-
-    var layer = new Kinetic.Layer({
-        listening: false,
-        hitGraphEnabled: false,
-        visible: true
-    });
-
-    layer.add(test);
-    stage.add(layer);
-    layer.draw();
-
-    var parametricImage = new Image(noColumns, noRows);
-
-    for (var i = 0; i < floatArray.length; ++i){
-        if (maxValue > floatArray[i])
-            maxValue = floatArray[i];
-        if (minValue < floatArray[i])
-            minValue = floatArray[i];
+    var context = canvas.getContext('2d');
+    var imgData = context.getImageData(0,0,noColumns, noRows);
+    var i = 0;
+    for (var r = 0; r < noRows; ++r){
+        for (var c = 0; c < noColumns; ++c) {
+            var ind = r + c*noRows;
+            var colour = GetColourForPercentage((floatArray[ind] - minValue) / (maxValue - minValue));
+            imgData.data[i * 4] = colour.r;
+            imgData.data[i * 4 + 1] = colour.g;
+            imgData.data[i * 4 + 2] = colour.b;
+            imgData.data[i * 4 + 3] = 50;
+            ++i;
+        }
     }
 
-    this.GetLayer = function(){
-        var layer = new Kinetic.Layer();
-        var mapImage = new Kinetic.Image();
+
+
+    this.GetNumberOfRows = function(){
+        return noRows;
     };
+
+    this.GetNumberOfColumns = function(){
+        return noColumns;
+    };
+
+    this.GetImageData = function(){
+        return imgData;
+    };
+    /*
+    var imageDataURL = canvas.toDataURL();
+    var testImage =  new Image();
+    testImage.onload = function(){
+        var test = new Kinetic.Image({
+            image: this,
+            width: noColumns,
+            height: noRows
+        });
+
+        var stage = new Kinetic.Stage({
+            container: 'drawDiv',
+            width: noColumns,
+            height: noRows
+        });
+
+        var layer = new Kinetic.Layer({
+            listening: false,
+            hitGraphEnabled: false,
+            visible: true
+        });
+
+        layer.add(test);
+        stage.add(layer);
+        layer.draw();
+    };
+
+
+    this.onload = null;
+    this.loadData = function(){
+        testImage.src = imageDataURL;
+        if (this.onload)
+            this.onload();
+    };
+*/
 
     /**
      * Set the number of columns in the upsampled DICOM images
@@ -113,12 +170,12 @@ dwv.parametricmap.ParametricMapData = function(noColumns, noRows, floatArray){
      */
 
     function GetInterpolatedPixelData(column, row){
-        if (row >= noRows)
-            row = noRows-1;
+        if (row >= scaleToRows)
+            row = scaleToRows-1;
         else if (row < 0)
             row = 0;
-        if (column >= noColumns)
-            column = noColumns-1;
+        if (column >= scaleToCols)
+            column = scaleToCols-1;
         else if (column < 0)
             column = 0;
 

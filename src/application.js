@@ -44,9 +44,31 @@ dwv.App = function(type)
     // Image data height
     var dataHeight = 0;
 
+    this.GetDataWidth = function(){
+        return dataWidth;
+    };
+    this.GetDataHeight = function(){
+        return dataHeight;
+    };
+
+    var paraWidth = 0;
+    var paraHeight = 0;
+    var paraMul = 0;
+
+
+    this.GetParametricMapScaleMultiplier = function(){
+        return paraMul;
+    };
+
     // display window scale
     var windowScale = 1;
-     
+
+    // Parametric map layer
+    var parametricMapLayer = null;
+
+    // Parametric map data
+    var parametricMapData = null;
+
     // Image layer
     var imageLayer = null;
     // Draw layers
@@ -145,6 +167,23 @@ dwv.App = function(type)
      * @return {Object} The image layer.
      */
     this.getImageLayer = function() { return imageLayer; };
+
+    /**
+     * Get the parametric map.
+     * @method getParametricMapLayer
+     * @return {Object} The parametric map layer.
+     */
+    this.getParametricMapLayer = function() { return parametricMapLayer; };
+
+    /**
+     * Get the parametric map data
+     * @method getParametricMapData
+     * @return {Object} The parametric map data.
+     */
+    this.getParametricMapData = function() { return parametricMapData; };
+
+
+
     /** 
      * Get the draw layer.
      * @method getDrawLayer
@@ -185,7 +224,10 @@ dwv.App = function(type)
      */
     this.init = function(){
         // align layers when the window is resized
-        window.onresize = this.resize;
+        window.onresize = function(){
+            app.resize();
+            medianViewer.resize();
+        };
         // listen to drag&drop
         var box = document.getElementById("dropBox"+appExt);
         if ( box ) {
@@ -231,6 +273,8 @@ dwv.App = function(type)
         image = null;
         view = null;
         info = null;
+        parametricMapLayer = null;
+        parametricMapData = null;
     };
     
     /**
@@ -241,6 +285,10 @@ dwv.App = function(type)
         if ( imageLayer ) {
             imageLayer.resetLayout(windowScale);
             imageLayer.draw();
+        }
+        if (parametricMapLayer){
+            parametricMapLayer.resetLayout(windowScale);
+            parametricMapLayer.draw();
         }
         if ( drawStage ) {
             drawStage.offset( {'x': 0, 'y': 0} );
@@ -404,8 +452,27 @@ dwv.App = function(type)
      * @param string file The file to load.
      */
     this.loadParametricMapFile = function(file){
+
+        if (!imageLayer || !image)
+            return;
         var paraIO = new dwv.io.ParametricMapFile();
         paraIO.onload = function(data){
+            parametricMapData = data;
+            parametricMapLayer = new dwv.html.Layer("parametricMapLayer_med");
+            parametricMapLayer.initialise(image.getSize().getNumberOfColumns(), image.getSize().getNumberOfRows());
+            parametricMapLayer.fillContext();
+            parametricMapLayer.setStyleDisplay(true);
+            parametricMapLayer.setImageData(data.GetImageData());
+            parametricMapLayer.draw();
+
+            paraWidth = data.GetNumberOfColumns();
+            paraHeight = data.GetNumberOfRows();
+
+            // resize app
+            self.resetLayout();
+            self.resize();
+
+            //$('#imageLayer_med').hide();
 
         };
         paraIO.onerror= function(error){
@@ -532,6 +599,17 @@ dwv.App = function(type)
             imageLayer.setHeight(newHeight);
             imageLayer.zoom(iZoomX, iZoomY, 0, 0);
             imageLayer.draw();
+        }
+        if (parametricMapLayer){
+            var newPWidth = parseInt(windowScale*paraWidth, 10);
+            var newPHeight = parseInt(windowScale*paraHeight, 10);
+            paraMul = newHeight/newPHeight;
+            var iZoomX = imageLayer.getZoom().x * paraMul;
+            var iZoomY = imageLayer.getZoom().y * paraMul;
+            parametricMapLayer.setWidth(newWidth);
+            parametricMapLayer.setHeight(newHeight);
+            parametricMapLayer.zoom(iZoomX, iZoomY, 0, 0);
+            parametricMapLayer.draw();
         }
         // resize draw stage
         if( drawStage ) {

@@ -72,12 +72,12 @@ dwv.deformationfield.DeformationData = function(noColumns, noRows, noTimePoints,
      */
 
     function GetInterpolatedPixelData(column, row, timePoint, dimension){
-        if (row >= noRows)
-            row = noRows-1;
+        if (row >= scaleToRows)
+            row = scaleToRows-1;
         else if (row < 0)
             row = 0;
-        if (column >= noColumns)
-            column = noColumns-1;
+        if (column >= scaleToCols)
+            column = scaleToCols-1;
         else if (column < 0)
             column = 0;
 

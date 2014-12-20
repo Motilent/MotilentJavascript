@@ -369,6 +369,7 @@ dwv.html.createHtmlSelect = function(name, list) {
     {
         for ( var i in list )
         {
+
             option = document.createElement("option");
             option.value = list[i];
             option.appendChild(document.createTextNode(dwv.utils.capitaliseFirstLetter(list[i])));
@@ -379,6 +380,8 @@ dwv.html.createHtmlSelect = function(name, list) {
     {
         for ( var item in list )
         {
+            if (item.match(/.*_med.*/))
+                continue;
             option = document.createElement("option");
             option.value = item;
             option.appendChild(document.createTextNode(dwv.utils.capitaliseFirstLetter(item)));

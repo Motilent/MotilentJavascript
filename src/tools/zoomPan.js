@@ -240,6 +240,11 @@ dwv.tool.ZoomAndPan = function(app)
             var newZoom = {'x': (oldZoom.x + step), 'y': (oldZoom.y + step)};
             app.getImageLayer().zoom(newZoom.x, newZoom.y, cx2, cy2);
             app.getImageLayer().draw();
+
+            if (app.getParametricMapLayer()){
+                app.getParametricMapLayer().zoom(newZoom.x * app.GetParametricMapScaleMultiplier(), newZoom.y * app.GetParametricMapScaleMultiplier(), cx2, cy2);
+                app.getParametricMapLayer().draw();
+            }
         }
         if( app.getDrawStage() ) { 
             
@@ -255,7 +260,6 @@ dwv.tool.ZoomAndPan = function(app)
                 var group = layer.children[g];
                 for (var i = 0; i < group.children.length; ++i) {
                     if (group.children[i] instanceof Kinetic.Text) {
-                        console.log(newKZoom.x / oldKZoom.x);
                         //group.children[i].fontSize(group.children[i].fontSize() * oldKZoom.x / newKZoom.x);
                         group.children[i].fontSize(20 / newKZoom.x);
                     }
@@ -291,6 +295,15 @@ dwv.tool.ZoomAndPan = function(app)
             var tyy = ty / zoom.y;
             layer.translate(txx, tyy);
             layer.draw();
+
+            if (app.getParametricMapLayer()){
+                layer = app.getParametricMapLayer();
+                zoom = layer.getZoom();
+                txx = tx / zoom.x;
+                tyy = ty / zoom.y;
+                app.getParametricMapLayer().translate(txx, tyy);
+                app.getParametricMapLayer().draw();
+            }
         }
         if( app.getDrawStage() ) { 
             var stage = app.getDrawStage();

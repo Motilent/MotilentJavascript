@@ -3,6 +3,7 @@ body { font-family: Verdana, Arial, Helvetica, sans-serif; }
 /* Layers */
 #layerContainer { position: relative; padding: 0; }
 #imageLayer { position: absolute; }
+#parametricMapLayer{ position: absolute; pointer-events: none; }
 #drawDiv { position: absolute; pointer-events: none; }
 #dropBox { border: 5px dashed #ccc; }
 #dropBox.hover { border: 5px dashed #cc0; }
@@ -10,6 +11,7 @@ body { font-family: Verdana, Arial, Helvetica, sans-serif; }
 /* Layers */
 #layerContainer_med { position: relative; padding: 0; }
 #imageLayer_med { position: absolute; }
+#parametricMapLayer_med { position: absolute; pointer-events: none; }
 #drawDiv_med { position: absolute; pointer-events: none; }
 #dropBox_med { border: 5px dashed #ccc; }
 #dropBox_med.hover { border: 5px dashed #cc0; }

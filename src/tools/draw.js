@@ -390,9 +390,7 @@ dwv.tool.Draw = function (app)
             lastPoint = new dwv.math.Point2D(event._x, event._y);
             points.push(lastPoint);
 
-            // Push another point as this is deleted immediately on moving the mouse
-            if (points.length == 1)
-                points.push(lastPoint);
+
 
             // Determine if shape draw type is draggable or clickable
             if (self.shapeName == 'line')
@@ -401,6 +399,10 @@ dwv.tool.Draw = function (app)
                 clickTypeShape = true;
             else
                 clickTypeShape = false;
+
+            // Push another point as this is deleted immediately on moving the mouse
+            if (points.length == 1 && clickTypeShape)
+                points.push(lastPoint);
         }
     };
 

@@ -364,6 +364,85 @@ dwv.gui.base.initLivewireHtml = function()
 };
 
 /**
+ * Append the Cineloop HTML to the page.
+ * @method appendCineloopHtml
+ * @static
+ */
+dwv.gui.base.appendCineloopHtml = function()
+{
+    // play button
+    var playbutton = document.createElement("button");
+    playbutton.id = "cineloopPlayButton";
+    playbutton.name = "cineloopPlayButton";
+    playbutton.onclick = dwv.gui.onCineloopPlay;
+    playbutton.setAttribute("style","width:100%; margin-top:0.5em;");
+    playbutton.setAttribute("class","ui-btn ui-btn-b");
+
+    // pause button
+    var pauseButton = document.createElement("button");
+    pauseButton.id = "cineloopPauseButton";
+    pauseButton.name = "cineloopPauseButton";
+    pauseButton.onclick = dwv.gui.onCineloopPause;
+    pauseButton.setAttribute("style","width:100%; margin-top:0.5em;");
+    pauseButton.setAttribute("class","ui-btn ui-btn-b");
+
+    // speed slider
+    var slider = document.createElement("input");
+    slider.type="range";
+    slider.id = "cineloopSlider";
+    slider.name = "cineloopSlider";
+    slider.id = "cineloopSlider";
+    slider.onchange = dwv.gui.onCineloopSlider;
+    slider.setAttribute("style","width:100px; margin-top:0.5em;");
+    slider.setAttribute("min", "1");
+    slider.setAttribute("max", "100");
+    slider.setAttribute("value", "50");
+
+    var text = document.createTextNode("Play");
+    playbutton.appendChild(text);
+    text = document.createTextNode("Pause");
+    pauseButton.appendChild(text);
+
+    // list element
+    var liElement = document.createElement("li");
+    liElement.id = "cineloopLi";
+    liElement.style.display = "none";
+    liElement.setAttribute("class","ui-block-c");
+    liElement.appendChild(playbutton);
+    liElement.appendChild(pauseButton);
+    liElement.appendChild(slider);
+
+    // node
+    var node = document.getElementById("toolList");
+    // append element
+    node.appendChild(liElement);
+    // trigger create event (mobile)
+    $("#toolList").trigger("create");
+};
+
+/**
+ * Display the Cineloop HTML.
+ * @method displayCineloopHtml
+ * @static
+ * @param {Boolean} bool True to display, false to hide.
+ */
+dwv.gui.base.displayCineloopHtml = function(bool)
+{
+    // display list element
+    dwv.html.displayElement("cineloopLi", bool);
+};
+
+/**
+ * Initialise the Cineloop HTML.
+ * @method displayCineloopHtml
+ * @static
+ * */
+dwv.gui.base.initCineloopHtml = function()
+{
+    // Nothing to do here
+};
+
+/**
  * Append the ZoomAndPan HTML to the page.
  * @method appendZoomAndPanHtml
  * @static

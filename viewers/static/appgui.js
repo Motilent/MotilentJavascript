@@ -176,6 +176,17 @@ dwv.gui.initDrawHtml = function(){
 };
 
 
+// Cineloop
+dwv.gui.appendCineloopHtml = function(){
+    dwv.gui.base.appendCineloopHtml();
+};
+dwv.gui.displayCineloopHtml = function(bool){
+    dwv.gui.base.displayCineloopHtml(bool);
+};
+dwv.gui.initCineloopHtml = function(){
+    dwv.gui.base.initCineloopHtml();
+};
+
 // Propagate
 dwv.gui.appendPropagateHtml = function(){
     dwv.gui.base.appendPropagateHtml();

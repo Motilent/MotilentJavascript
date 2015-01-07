@@ -83,6 +83,51 @@ dwv.gui.base.displayFileLoadHtml = function(bool)
 };
 
 /**
+ * Append the zip file load HTML to the page.
+ * @method appendZipFileLoadHtml
+ * @static
+ */
+dwv.gui.base.appendZipFileLoadHtml = function()
+{
+    // input
+    var fileLoadInput = document.createElement("input");
+    fileLoadInput.onchange = dwv.gui.onChangeZipFile;
+    fileLoadInput.type = "file";
+    fileLoadInput.multiple = false;
+    fileLoadInput.id = "zipfile";
+    fileLoadInput.setAttribute("data-clear-btn","true");
+    fileLoadInput.setAttribute("data-mini","true");
+
+    // associated div
+    var fileLoadDiv = document.createElement("div");
+    fileLoadDiv.id = "zipfilesdiv";
+    fileLoadDiv.style.display = "none";
+    fileLoadDiv.appendChild(fileLoadInput);
+
+    // node
+    var node = document.getElementById("loaderlist");
+    // append
+    node.appendChild(fileLoadDiv);
+    // trigger create event (mobile)
+    $("#loaderlist").trigger("create");
+};
+
+/**
+ * Display the zip file load HTML.
+ * @method displayFileLoadHtml
+ * @static
+ * @param {Boolean} bool True to display, false to hide.
+ */
+dwv.gui.base.displayZipFileLoadHtml = function(bool)
+{
+    // file div element
+    var filediv = document.getElementById("zipfilesdiv");
+    filediv.style.display = bool ? "" : "none";
+};
+
+
+
+/**
  * Append the file deformation HTML to the page.
  * @method appendDeformationLoadHtml
  * @static

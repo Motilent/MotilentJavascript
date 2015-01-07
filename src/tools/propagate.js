@@ -16,7 +16,7 @@ var Kinetic = Kinetic || {};
  * @oaram {Object} motilityDrawTool The motility draw tool
  * @param {Object} medianDrawTool The median draw tool
  */
-dwv.tool.Propagate = function (motilityApp, medianApp, motilityDrawTool, medianDrawTool) {
+dwv.tool.Propagate = function (motilityApp, medianApp, motilityDrawTool, medianDrawTool, motilityZoomTool) {
 
     /**
      * Closure to self: to be used by event handlers.
@@ -74,6 +74,8 @@ dwv.tool.Propagate = function (motilityApp, medianApp, motilityDrawTool, medianD
                 });
             }
         }
+        // Call the zoom function just to reset text and line width scaling
+        motilityZoomTool.resetScaling();
     };
 
     /**
@@ -129,6 +131,8 @@ dwv.tool.Propagate = function (motilityApp, medianApp, motilityDrawTool, medianD
 
             }
         }
+        // Call the zoom function just to reset text and line width scaling
+        motilityZoomTool.resetScaling();
     };
 
 };

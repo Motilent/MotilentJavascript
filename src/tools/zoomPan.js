@@ -227,6 +227,14 @@ dwv.tool.ZoomAndPan = function(app)
     };
 
     /**
+     * Reset the text and line width scaling
+     * @method resetScaling
+     */
+    this.resetScaling = function(){
+        zoomLayers(0,0,0,0,0);
+    };
+
+    /**
      * Apply the zoom to the layers.
      * @method zoomLayers
      * @param {Number} step The zoom step increment. A good step is of 0.1.
@@ -238,6 +246,8 @@ dwv.tool.ZoomAndPan = function(app)
         if( app.getImageLayer() ) {
             var oldZoom = app.getImageLayer().getZoom();
             var newZoom = {'x': (oldZoom.x + step), 'y': (oldZoom.y + step)};
+            if (newZoom.x <= 0 || newZoom.y <= 0)
+                return;
             app.getImageLayer().zoom(newZoom.x, newZoom.y, cx2, cy2);
             app.getImageLayer().draw();
 
@@ -252,20 +262,20 @@ dwv.tool.ZoomAndPan = function(app)
             var oldKZoom = stage.scale();
             var newKZoom = {'x': (oldKZoom.x + step), 'y': (oldKZoom.y + step)};
 
-            /* */
-            var layer = stage.children[0];
-            var group = layer.children[0];
+            for (var ly = 0; ly < stage.children.length; ++ly) {
+                var layer = stage.children[ly];
 
-            for (var g = 0; g < layer.children.length; ++g) {
-                var group = layer.children[g];
-                for (var i = 0; i < group.children.length; ++i) {
-                    if (group.children[i] instanceof Kinetic.Text) {
-                        //group.children[i].fontSize(group.children[i].fontSize() * oldKZoom.x / newKZoom.x);
-                        group.children[i].fontSize(20 / newKZoom.x);
-                    }
+                for (var g = 0; g < layer.children.length; ++g) {
+                    var group = layer.children[g];
+                    for (var i = 0; i < group.children.length; ++i) {
+                        if (group.children[i] instanceof Kinetic.Text) {
+                            //group.children[i].fontSize(group.children[i].fontSize() * oldKZoom.x / newKZoom.x);
+                            group.children[i].fontSize(20 / newKZoom.x);
+                        }
 
-                    else if (group.children[i] instanceof Kinetic.Line) {
-                        group.children[i].strokeWidth(3 / newKZoom.x);
+                        else if (group.children[i] instanceof Kinetic.Line) {
+                            group.children[i].strokeWidth(3 / newKZoom.x);
+                        }
                     }
                 }
             }

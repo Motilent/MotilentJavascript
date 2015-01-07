@@ -11,6 +11,10 @@ var medianViewer = new dwv.App('median');
 // launch when page is loaded
 $(document).ready( function()
 {
+    // Setup zip library
+    zip.workerScriptsPath = '/motilentjavascript/ext/zipjs/';
+
+
     $("#toggleInfoLayer").button({ icons: 
         { primary: "ui-icon-comment" }, text: false });
     // create dialogs
@@ -54,6 +58,7 @@ $(document).ready( function()
 
     // Add required loaders to the loader list
     dwv.io.loaders = {};
+    dwv.io.loaders["Zip File"] = dwv.io.ZipFile;
     dwv.io.loaders.file = dwv.io.File;
     dwv.io.loaders.url = dwv.io.Url;
     dwv.io.loaders["Deformation File"] = dwv.io.DeformationFile;
@@ -67,11 +72,14 @@ $(document).ready( function()
     // append load container HTML
     dwv.gui.appendLoadboxHtml();
     // append loaders HTML
+    dwv.gui.appendZipFileLoadHtml();
     dwv.gui.appendFileLoadHtml();
+
     dwv.gui.appendUrlLoadHtml();
     dwv.gui.appendDeformationLoadHtml();
     dwv.gui.appendParametricMapLoadHtml();
-    dwv.gui.displayFileLoadHtml(true);
+    dwv.gui.appendZipFileLoadHtml();
+    dwv.gui.displayZipFileLoadHtml(true);
 
 
     // append exporters HTML
@@ -90,7 +98,7 @@ $(document).ready( function()
     dwv.tool.tools.draw_med = new dwv.tool.Draw(medianViewer);
     dwv.tool.tools.draw.setSiblingTool(dwv.tool.tools.draw_med);
     dwv.tool.tools.draw_med.setSiblingTool(dwv.tool.tools.draw);
-    dwv.tool.tools.propagate = new dwv.tool.Propagate(app, medianViewer, dwv.tool.tools.draw, dwv.tool.tools.draw_med);
+    dwv.tool.tools.propagate = new dwv.tool.Propagate(app, medianViewer, dwv.tool.tools.draw, dwv.tool.tools.draw_med, dwv.tool.tools["Zoom/Pan"]);
     dwv.tool.tools.cineloop = new dwv.tool.Cineloop(app);
     medianViewer.setToolBox(app.getToolBox());
 

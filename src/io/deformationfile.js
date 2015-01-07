@@ -21,7 +21,7 @@ dwv.io.DeformationFile = function()
 /**
  * Load a deformation file.
  * @method load
- * @param String filename The file to load.
+ * @param Blob file The file to load.
  */
 dwv.io.DeformationFile.prototype.load = function(file)
 {
@@ -36,12 +36,12 @@ dwv.io.DeformationFile.prototype.load = function(file)
             'message': "An error occurred while reading the DICOM file: "+event.getMessage() } );
     };
 
-    // DICOM reader loader
+    // deformation reader loader
     var onLoadDeformationReader = function(event)
     {
         // parse file
         try {
-            var tmpdata = dwv.deformationfield.getDataFromBuffer(event.target.result, 256, 256, 20, 2);
+            var tmpdata = dwv.deformationfield.getDataFromBuffer(event.target.result);
             // call listener
             onload(tmpdata);
         } catch(error) {

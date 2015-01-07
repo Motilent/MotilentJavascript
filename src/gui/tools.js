@@ -391,7 +391,6 @@ dwv.gui.base.appendCineloopHtml = function()
     slider.type="range";
     slider.id = "cineloopSlider";
     slider.name = "cineloopSlider";
-    slider.id = "cineloopSlider";
     slider.onchange = dwv.gui.onCineloopSlider;
     slider.setAttribute("style","width:100px; margin-top:0.5em;");
     slider.setAttribute("min", "1");

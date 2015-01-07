@@ -316,6 +316,57 @@ dwv.App = function(type)
             undoStack.redo();
         }
     };
+
+
+    /* Cineloop events */
+    var cineloopInterval = null;
+    var cineloopSpeed = 50;
+    /**
+     * Play cineloop
+     * @method cineloopPlay
+     */
+    this.cineloopPlay = function(){
+        if (cineloopInterval)
+            clearInterval(cineloopInterval);
+        if (!view)
+            return;
+        cineloopInterval = setInterval( function() {
+            // Do cineloop
+            if (!view)
+                return;
+            var currentPosition = view.getCurrentPosition();
+            var nextPosition = jQuery.extend({}, currentPosition);
+            ++nextPosition.k;
+            view.setCurrentPosition(nextPosition);
+            nextPosition = view.getCurrentPosition();
+            if (currentPosition.k == nextPosition.k){
+                nextPosition.k = 0;
+                view.setCurrentPosition(nextPosition);
+            }
+            app.onSliceChange();
+
+
+        }, 10000 / cineloopSpeed);
+    };
+
+    /**
+     * Pause cineloop
+     * @method cineloopPause
+     */
+    this.cineloopPause = function(){
+        if (cineloopInterval)
+            clearInterval(cineloopInterval);
+    };
+
+    /**
+     * Change cineloop speed
+     * @method setCineloopSpeed
+     * @param speed number The speed to set the cineloop (arbitrary scale)
+     */
+    this.setCineloopSpeed = function(speed){
+        cineloopSpeed = speed;
+        this.cineloopPlay();
+    };
     
     /**
      * Handle change files event.
@@ -326,6 +377,17 @@ dwv.App = function(type)
     {
         this.loadFiles(event.target.files);
     };
+
+    /**
+     * Handle change zip file event.
+     * @method onChangeZipFile
+     * @param {Object} event The event fired when changing the file field.
+     */
+    this.onChangeZipFile = function(event)
+    {
+        this.loadZipFile(event.target.files[0]);
+    };
+
 
     /**
      * Handle deformation files change.
@@ -359,6 +421,53 @@ dwv.App = function(type)
     };
 
     /**
+     * Handle processing of data from DICOM reader
+     * @method processImageData
+     * @param data Object DICOM reader data object
+     */
+    this.processImageData = function(data){
+        var isFirst = true;
+
+        if( image ) {
+            image.appendSlice( data.view.getImage() );
+            isFirst = false;
+            if (deffField) {
+                deffField.SetColumns(image.getNumberOfColumns());
+                deffField.SetRows(image.getNumberOfRows());
+            }
+        }
+        if (image && image.getSize().getNumberOfSlices() == 15){
+            medianViewer.postLoadInit(data);
+            if( medianViewer.getDrawStage() ) {
+                // create slice draw layer
+                var drawLayer = new Kinetic.Layer({
+                    listening: false,
+                    hitGraphEnabled: false,
+                    visible: true
+                });
+                // add to layers array
+                medianViewer.getDrawLayers().push(drawLayer);
+                // add the layer to the stage
+                medianViewer.getDrawStage().add(drawLayer);
+            }
+        }
+        self.postLoadInit(data);
+        if( drawStage ) {
+            // create slice draw layer
+            var drawLayer = new Kinetic.Layer({
+                listening: false,
+                hitGraphEnabled: false,
+                visible: isFirst,
+                fromfile: data.file.name
+            });
+            // add to layers array
+            drawLayers.push(drawLayer);
+            // add the layer to the stage
+            drawStage.add(drawLayer);
+        }
+    };
+
+    /**
      * Load a list of files.
      * @method loadFiles
      * @param {Array} files The list of files to load.
@@ -370,50 +479,7 @@ dwv.App = function(type)
         medianViewer.reset();
         // create IO
         var fileIO = new dwv.io.File();
-        fileIO.onload = function (data) {
-
-
-
-            var isFirst = true;
-
-            if( image ) {
-                image.appendSlice( data.view.getImage() );
-                isFirst = false;
-                if (deffField) {
-                    deffField.SetColumns(image.getNumberOfColumns());
-                    deffField.SetRows(image.getNumberOfRows());
-                }
-            }
-            if (image  && image.getSize().getNumberOfSlices() == 15){
-                medianViewer.postLoadInit(data);
-                if( medianViewer.getDrawStage() ) {
-                    // create slice draw layer
-                    var drawLayer = new Kinetic.Layer({
-                        listening: false,
-                        hitGraphEnabled: false,
-                        visible: true
-                    });
-                    // add to layers array
-                    medianViewer.getDrawLayers().push(drawLayer);
-                    // add the layer to the stage
-                    medianViewer.getDrawStage().add(drawLayer);
-                }
-            }
-            self.postLoadInit(data);
-            if( drawStage ) {
-                // create slice draw layer
-                var drawLayer = new Kinetic.Layer({
-                    listening: false,
-                    hitGraphEnabled: false,
-                    visible: isFirst,
-                    fromfile: data.file.name
-                });
-                // add to layers array
-                drawLayers.push(drawLayer);
-                // add the layer to the stage
-                drawStage.add(drawLayer);
-            }
-        };
+        fileIO.onload = this.processImageData;
         fileIO.onerror = function(error){ handleError(error); };
         fileIO.noFiles = files.length;
         fileIO.filesLoaded = 0;
@@ -424,6 +490,39 @@ dwv.App = function(type)
         fileIO.load(files);
     };
 
+
+    /**
+     * Load a zip file.
+     * @method loadZipFile
+     * @param Blob file The file to load.
+     */
+    this.loadZipFile = function(file){
+        var zipIO = new dwv.io.ZipFile();
+        zipIO.onloadDICOM = this.processImageData;
+        zipIO.onerror = function(error){
+            handleError(error);
+        };
+        zipIO.onloadDeformation = this.processDeformationData;
+        zipIO.onloadParametric = medianViewer.processParametricData;
+
+        zipIO.load(file);
+
+    };
+
+
+    /**
+     * Handle processing of data from deformation field reader
+     * @method processDeformationData
+     * @param data Object Parametric map reader data object
+     */
+    this.processDeformationData = function(data){
+        deffField = data;
+        if (image) {
+            deffField.SetColumns(image.getSize().getNumberOfColumns());
+            deffField.SetRows(image.getSize().getNumberOfRows());
+        }
+    };
+
     /**
      * Load a deformation file.
      * @method loadDeformationFile
@@ -431,19 +530,38 @@ dwv.App = function(type)
      */
     this.loadDeformationFile = function(file){
         var defIO = new dwv.io.DeformationFile();
-        defIO.onload = function(data){
-            deffField = data;
-            if (image) {
-                deffField.SetColumns(image.getSize().getNumberOfColumns());
-                deffField.SetRows(image.getSize().getNumberOfRows());
-            }
-        };
+        defIO.onload = this.processDeformationData;
         defIO.onerror= function(error){
             handleError(error);
         };
 
         defIO.load(file);
 
+    };
+
+
+    /**
+     * Handle processing of data from parametric map reader
+     * @method processParametricData
+     * @param data Object Parametric map reader data object
+     */
+    this.processParametricData = function(data){
+        parametricMapData = data;
+        parametricMapLayer = new dwv.html.Layer("parametricMapLayer_med");
+        parametricMapLayer.initialise(image.getSize().getNumberOfColumns(), image.getSize().getNumberOfRows());
+        parametricMapLayer.fillContext();
+        parametricMapLayer.setStyleDisplay(true);
+        parametricMapLayer.setImageData(data.GetImageData());
+        parametricMapLayer.draw();
+
+        paraWidth = data.GetNumberOfColumns();
+        paraHeight = data.GetNumberOfRows();
+
+        // resize app
+        self.resetLayout();
+        self.resize();
+
+        //$('#imageLayer_med').hide();
     };
 
     /**
@@ -456,25 +574,7 @@ dwv.App = function(type)
         if (!imageLayer || !image)
             return;
         var paraIO = new dwv.io.ParametricMapFile();
-        paraIO.onload = function(data){
-            parametricMapData = data;
-            parametricMapLayer = new dwv.html.Layer("parametricMapLayer_med");
-            parametricMapLayer.initialise(image.getSize().getNumberOfColumns(), image.getSize().getNumberOfRows());
-            parametricMapLayer.fillContext();
-            parametricMapLayer.setStyleDisplay(true);
-            parametricMapLayer.setImageData(data.GetImageData());
-            parametricMapLayer.draw();
-
-            paraWidth = data.GetNumberOfColumns();
-            paraHeight = data.GetNumberOfRows();
-
-            // resize app
-            self.resetLayout();
-            self.resize();
-
-            //$('#imageLayer_med').hide();
-
-        };
+        paraIO.onload = medianViewer.processParametricData;
         paraIO.onerror= function(error){
             handleError(error);
         };

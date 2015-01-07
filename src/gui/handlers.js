@@ -46,24 +46,35 @@ dwv.gui.onChangeLoader = function(/*event*/)
         dwv.gui.displayUrlLoadHtml(false);
         dwv.gui.displayDeformationLoadHtml(false);
         dwv.gui.displayParametricMapLoadHtml(false);
+        dwv.gui.displayZipFileLoadHtml(false);
         dwv.gui.displayFileLoadHtml(true);
+    }
+    if( this.value === "Zip File") {
+        dwv.gui.displayUrlLoadHtml(false);
+        dwv.gui.displayDeformationLoadHtml(false);
+        dwv.gui.displayParametricMapLoadHtml(false);
+        dwv.gui.displayFileLoadHtml(false);
+        dwv.gui.displayZipFileLoadHtml(true);
     }
     else if( this.value === "url") {
         dwv.gui.displayFileLoadHtml(false);
         dwv.gui.displayDeformationLoadHtml(false);
         dwv.gui.displayParametricMapLoadHtml(false);
+        dwv.gui.displayZipFileLoadHtml(false);
         dwv.gui.displayUrlLoadHtml(true);
     }
     else if( this.value === "Deformation File") {
         dwv.gui.displayUrlLoadHtml(false);
         dwv.gui.displayFileLoadHtml(false);
         dwv.gui.displayParametricMapLoadHtml(false);
+        dwv.gui.displayZipFileLoadHtml(false);
         dwv.gui.displayDeformationLoadHtml(true);
     }
     else if (this.value === "Parametric Map"){
         dwv.gui.displayUrlLoadHtml(false);
         dwv.gui.displayFileLoadHtml(false);
         dwv.gui.displayDeformationLoadHtml(false);
+        dwv.gui.displayZipFileLoadHtml(false);
         dwv.gui.displayParametricMapLoadHtml(true);
     }
 };
@@ -101,6 +112,17 @@ dwv.gui.onExportRois = function()
 dwv.gui.onChangeFiles = function(event)
 {
     app.onChangeFiles(event);
+};
+
+/**
+ * Handle zip file change.
+ * @method onChangeZipFile
+ * @static
+ * @param {Object} event The change event.
+ */
+dwv.gui.onChangeZipFile = function(event)
+{
+    app.onChangeZipFile(event);
 };
 
 /**
@@ -220,6 +242,41 @@ dwv.gui.onZoomReset = function(/*event*/)
     app.resetLayout();
     medianViewer.resetLayout();
 };
+
+/**
+ * Handle cineloop play.
+ * @method onCineloopPlay
+ * @static
+ * @param {Object} event The change event.
+ */
+dwv.gui.onCineloopPlay = function(/*event*/)
+{
+    app.cineloopPlay();
+};
+
+/**
+ * Handle cineloop pause.
+ * @method onCineloopPause
+ * @static
+ * @param {Object} event The change event.
+ */
+dwv.gui.onCineloopPause = function(/*event*/)
+{
+    app.cineloopPause();
+};
+
+/**
+ * Handle cineloop speed change.
+ * @method onCineloopSlider
+ * @static
+ * @param {Object} event The change event.
+ */
+dwv.gui.onCineloopSlider = function(event)
+{
+    var speed = parseInt(event.currentTarget.value,10);
+    app.setCineloopSpeed(speed);
+};
+
 
 /**
  * Handle propagation of one layer of shapes

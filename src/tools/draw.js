@@ -110,7 +110,7 @@ dwv.tool.ChangeShapeCommand = function (shape, name, func, startAnchor, endAncho
      */
     this.execute = function () {
         // change shape
-        func( shape, endAnchor, image );
+        func( shape, endAnchor, image, true);
         // draw
         layer.draw();
     };
@@ -178,6 +178,7 @@ dwv.tool.colors = [
  */
 dwv.tool.Draw = function (app)
 {
+    app.SetDrawTool(this);
     /**
      * Closure to self: to be used by event handlers.
      * @property self
@@ -468,7 +469,7 @@ dwv.tool.Draw = function (app)
                 activeText.destroy();
             }
             // create final shape
-            var tmp = new dwv.tool.shapes[self.shapeName](points, self.style, app.getImage());
+            var tmp = new dwv.tool.shapes[self.shapeName](points, self.style, app.getImage(), true);
             activeShape = tmp.shape;
             activeText = tmp.text;
             // re-activate layer
@@ -511,7 +512,7 @@ dwv.tool.Draw = function (app)
             points.pop();
             points.pop();
             // create final shape
-            var tmp = new dwv.tool.shapes[self.shapeName](points, self.style, app.getImage());
+            var tmp = new dwv.tool.shapes[self.shapeName](points, self.style, app.getImage(), true);
             activeShape = tmp.shape;
             activeText = tmp.text;
             // re-activate layer

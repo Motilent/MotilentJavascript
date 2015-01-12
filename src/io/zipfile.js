@@ -181,7 +181,6 @@ dwv.io.ZipFile.prototype.load = function(file)
                     else if (entries[i].filename.match(/^defor/i)){
                         deformationFieldEntries.push(entries[i]);
                     }
-
                 }
 
                 // First process dicom files

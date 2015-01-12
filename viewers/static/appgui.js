@@ -124,17 +124,27 @@ dwv.gui.appendToolboxHtml = function(){
     toolbox.appendChild(document.createTextNode("Toolbox"));
     toolbox.onclick = function() { toggle("#toolbox"); };
 
+    /*
     var history = document.createElement("button");
     history.appendChild(document.createTextNode("History"));
     history.onclick = function() { toggle("#history"); };
+*/
+    var exportButton = document.createElement("button");
+    exportButton.appendChild(document.createTextNode("Export"));
+    exportButton.onclick = function() { toggle("#exportData"); };
+
 
     var tags = document.createElement("button");
     tags.appendChild(document.createTextNode("Tags"));
     tags.onclick = function() { toggle("#tags"); };
 
     var image = document.createElement("button");
-    image.appendChild(document.createTextNode("Image"));
+    image.appendChild(document.createTextNode("Motility Image"));
     image.onclick = function() { toggle("#layerDialog"); };
+
+    var image_med = document.createElement("button");
+    image_med.appendChild(document.createTextNode("Median Image"));
+    image_med.onclick = function() { toggle("#layerDialog_med"); };
 
     var info = document.createElement("button");
     info.appendChild(document.createTextNode("Info"));
@@ -147,9 +157,11 @@ dwv.gui.appendToolboxHtml = function(){
     var node = document.getElementById("toolbar");
     node.appendChild(open);
     node.appendChild(toolbox);
-    node.appendChild(history);
+    //node.appendChild(history);
+    node.appendChild(exportButton);
     node.appendChild(tags);
     node.appendChild(image);
+    node.appendChild(image_med);
     node.appendChild(info);
     node.appendChild(help);
     $("button").button();

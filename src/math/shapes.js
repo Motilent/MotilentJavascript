@@ -202,6 +202,22 @@ dwv.math.Ellipse = function(centre, a, b)
  */
 dwv.math.Line = function(begin, end)
 {
+
+    var points = [begin, end];
+    /**
+     * Get all points
+     * @method getPoints
+     * @return {Array} The Point2D array
+     */
+    this.getPoints = function() { return points; };
+
+    /**
+     * Add points to the Line.
+     * @method addPoints
+     * @param {Array} rhs The array of POints2D to add.
+     */
+    this.addPoints = function(rhs) { points=points.concat(rhs);};
+
     /**
      * Line length.
      * @property length

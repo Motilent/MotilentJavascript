@@ -471,8 +471,8 @@ dwv.image.Image = function(size, spacing, buffer, slicePositions, temporalPositi
  */
 dwv.image.Image.prototype.getValue = function( i, j, k )
 {
-    return this.getValueAtOffset( i +
-        ( j * this.getSize().getNumberOfColumns() ) +
+    return this.getValueAtOffset( Math.round(i) +
+        ( Math.round(j) * this.getSize().getNumberOfColumns() ) +
         ( k * this.getSize().getSliceSize()) );
 };
 

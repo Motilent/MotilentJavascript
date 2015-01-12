@@ -42,6 +42,14 @@ dwv.deformationfield.DeformationData = function(noColumns, noRows, noTimePoints,
         scaleToRows = rows;
     };
 
+    /**
+     * Get the number of time points
+     * @method GetNoTimePoints
+     */
+    this.GetNoTimePoints = function(){
+        return noTimePoints;
+    };
+
 
     /**
      * Get deformation field data for a discrete coordinate in the deformation field space

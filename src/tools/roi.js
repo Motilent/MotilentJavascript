@@ -12,49 +12,24 @@ var Kinetic = Kinetic || {};
  * @static
  * @param {Array} points The points from which to extract the line.
  * @param {Style} style The drawing style.
+ * @param Boolean finished
  */ 
-dwv.tool.RoiCreator = function (points, style, image)
+dwv.tool.RoiCreator = function (points, style, image, finished)
 {
+    if (finished == undefined)
+        finished = false;
     // physical shape
     var roi = new dwv.math.ROI();
     // add input points to the ROI
     roi.addPoints(points);
-    // points stored the kineticjs way
-    var arr = [];
-    for( var i = 1; i < roi.getLength(); ++i )
-    {
-        arr = arr.concat( roi.getPoint(i).getX() );
-        arr = arr.concat( roi.getPoint(i).getY() );
+
+    var shape = dwv.roi.GetShapeFromRoi(roi, style.getLineColor(), interactionApp);
+    if (finished){
+        app.GetRoiRecord().AddRoiEntry('roi', style.getLineColor(), roi, shape);
     }
-    // shape
-    var kline = new Kinetic.Line({
-        points: arr,
-        stroke: style.getLineColor(),
-        fill: tinycolor(style.getLineColor()).setAlpha(0.2).toString(),
-        strokeWidth: 3 / interactionApp.getDrawStage().scale().x,
-        name: "shape",
-        closed: true,
-        tension: 0.3
-    });
-    // quantification
-    var str = dwv.tool.GetROIText(roi, image);
-    // Find highest y position
-    var topPoint = points[0];
-    for (var i = 1; i < points.length; ++i){
-        if (points[i].getY() > topPoint.getY())
-            topPoint = points[i];
-    }
-    var ktext = new Kinetic.Text({
-        x: topPoint.getX(),
-        y: topPoint.getY() + 10,
-        text: str,
-        fontSize: 20 / interactionApp.getDrawStage().scale().x,
-        fontFamily: "Verdana",
-        fill: style.getLineColor(),
-        name: "text"
-    });
+
     // return shape
-    return {"shape": kline, "text": ktext};
+    return shape;
 }; 
 
 /**
@@ -63,9 +38,13 @@ dwv.tool.RoiCreator = function (points, style, image)
  * @static
  * @param {Object} kroi The roi shape to update.
  * @param {Object} anchor The active anchor.
+ * @param Boolean finished
  */ 
-dwv.tool.UpdateRoi = function (kroi, anchor, image)
+dwv.tool.UpdateRoi = function (kroi, anchor, image, finished)
 {
+    if (finished == undefined)
+        finished = false;
+
     // parent group
     var group = anchor.getParent();
     // update self
@@ -81,30 +60,12 @@ dwv.tool.UpdateRoi = function (kroi, anchor, image)
     points[anchor.id()+1] = anchor.y() - kroi.y();
     kroi.points( points );
 
-
-    var pointArr = [];
-    for (var i =0; i < points.length; i+=2)
-        pointArr.push(new dwv.math.Point2D(points[i],points[i+1]));
-
-    var roi = new dwv.math.ROI();
-    // add input points to the ROI
-    roi.addPoints(pointArr);
-
-    // Find highest y position
-    var topPoint = pointArr[0];
-    for (var i = 1; i < pointArr.length; ++i){
-        if (pointArr[i].getY() > topPoint.getY())
-            topPoint = pointArr[i];
+    if (interactionApp.getType() == 'median'){
+        // Update all other rois based on new points
+        kroi.roiEntry.SetNewMedianROIPoints(points, finished);
     }
-    // update text
-    var ktext = group.getChildren(function(node){
-        return node.name() === 'text';
-    })[0];
-    if ( ktext ) {
-        ktext.x(topPoint.getX());
-        ktext.y(topPoint.getY() + 10);
-        var str = dwv.tool.GetROIText(roi, image);
-        ktext.text(str);
+    else{
+        kroi.roiEntry.SetNewMotilityROIPoints(points, finished);
     }
 };
 

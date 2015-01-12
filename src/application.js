@@ -60,6 +60,24 @@ dwv.App = function(type)
         return paraMul;
     };
 
+    var drawTool = null;
+    /**
+     * Set the draw tool for this window
+     * @param dt The draw tool
+     */
+
+    this.SetDrawTool = function(dt){
+        drawTool = dt;
+    };
+
+    /**
+     * Get the draw tool for this window
+     * @return The draw tool
+     */
+
+    this.GetDrawTool = function(){
+        return drawTool;
+    };
     // display window scale
     var windowScale = 1;
 
@@ -112,6 +130,17 @@ dwv.App = function(type)
      */
     this.getView = function() { return view; };
 
+
+
+    /**
+     * Get the current time series slice number.
+     * @method GetCurrentSlice
+     * @return number The current time series slice number.
+     */
+    this.GetCurrentSlice = function(){
+        return view.getCurrentPosition().k;
+    };
+
     /**
      * Get the deformation field
      * @method getDeformationField
@@ -129,7 +158,25 @@ dwv.App = function(type)
         image = img; 
         view.setImage(img);
     };
-    
+
+    var roiRecord = null;
+    /**
+     * Create an ROI record - called when deformation fields are loaded
+     * @method CreateRoiRecord
+     */
+    this.CreateRoiRecord = function(){
+        if (appType == 'median')
+            return;
+        roiRecord = new dwv.roi.RoiRecord(this.GetDrawTool(), medianViewer.GetDrawTool(), deffField);
+    };
+    /**
+     * Get the ROI record
+     * @method GetRoiRecord
+     */
+    this.GetRoiRecord = function(){
+        return roiRecord;
+    };
+
     /** 
      * Restore the original image.
      * @method restoreOriginalImage
@@ -521,6 +568,10 @@ dwv.App = function(type)
             deffField.SetColumns(image.getSize().getNumberOfColumns());
             deffField.SetRows(image.getSize().getNumberOfRows());
         }
+        if (appType == 'motility'){
+            // Setup the ROI records
+            self.CreateRoiRecord();
+        }
     };
 
     /**
@@ -833,6 +884,8 @@ dwv.App = function(type)
      */
     function addImageInfoListeners()
     {
+        if (!view)
+            return;
         view.appExt = appExt;
         view.appType = appType;
         view.addEventListener("wlchange", dwv.info.updateWindowingDiv);
@@ -850,6 +903,8 @@ dwv.App = function(type)
      */
     function removeImageInfoListeners()
     {
+        if (!view)
+            return;
         view.appExt= appExt;
         view.removeEventListener("wlchange", dwv.info.updateWindowingDiv);
         view.removeEventListener("wlchange", dwv.info.updateMiniColorMap);

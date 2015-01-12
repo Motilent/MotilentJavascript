@@ -13,34 +13,24 @@ var Kinetic = Kinetic || {};
  * @param {Array} points The points from which to extract the line.
  * @param {Style} style The drawing style.
  * @param {Object} image The image object
+ * @param Boolean finished
  */ 
-dwv.tool.LineCreator = function (points, style, image)
+dwv.tool.LineCreator = function (points, style, image, finished)
 {
     // physical object
     var line = new dwv.math.Line(points[0], points[points.length-1]);
     if (!line)
     return;
-    // shape
-    var kline = new Kinetic.Line({
-        points: [line.getBegin().getX(), line.getBegin().getY(), 
-                 line.getEnd().getX(), line.getEnd().getY() ],
-        stroke: style.getLineColor(),
-        strokeWidth: 3 / interactionApp.getDrawStage().scale().x,
-        name: "shape"
-    });
-    // quantification
-    var str = dwv.tool.GetLineText( line, image );
-    var ktext = new Kinetic.Text({
-        x: line.getEnd().getX(),
-        y: line.getEnd().getY() - 15,
-        text: str,
-        fontSize: 20 / interactionApp.getDrawStage().scale().x,
-        fontFamily: "Verdana",
-        fill: style.getLineColor(),
-        name: "text"
-    });
+
+    var shape = dwv.roi.GetShapeFromLine(line, style.getLineColor(), interactionApp);
+
+    if (finished){
+        app.GetRoiRecord().AddRoiEntry('line', style.getLineColor(), line, shape);
+    }
+
     // return shape
-    return {"shape": kline, "text": ktext};
+    return shape;
+
 };
 
 /**
@@ -51,8 +41,11 @@ dwv.tool.LineCreator = function (points, style, image)
  * @param {Object} anchor The active anchor.
  * @param {Object} image The image object
  */ 
-dwv.tool.UpdateLine = function (kline, anchor, image)
+dwv.tool.UpdateLine = function (kline, anchor, image, finished)
 {
+    if (finished == undefined)
+        finished = false;
+
     // parent group
     var group = anchor.getParent();
     // find special points
@@ -79,7 +72,19 @@ dwv.tool.UpdateLine = function (kline, anchor, image)
     var by = begin.y() - kline.y();
     var ex = end.x() - kline.x();
     var ey = end.y() - kline.y();
-    kline.points( [bx,by,ex,ey] );
+    var points = [bx,by,ex,ey];
+    kline.points( points );
+
+
+    if (interactionApp.getType() == 'median'){
+        // Update all other rois based on new points
+        kline.roiEntry.SetNewMedianROIPoints(points, finished);
+    }
+    else{
+        kline.roiEntry.SetNewMotilityROIPoints(points, finished);
+    }
+
+return;
     // update text
     var ktext = group.getChildren(function(node){
         return node.name() === 'text';

@@ -352,4 +352,5 @@ dwv.gui.onRedo = function(/*event*/)
 dwv.gui.onToggleInfoLayer = function(/*event*/)
 {
     app.toggleInfoLayerDisplay();
+    medianViewer.toggleInfoLayerDisplay();
 };

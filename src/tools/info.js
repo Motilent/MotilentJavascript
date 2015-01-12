@@ -48,11 +48,11 @@ dwv.info.updateWindowingDiv = function(event)
     // window center list item
     var liwc = document.getElementById("liwcinfotr"+event.target.appExt);
     dwv.html.cleanNode(liwc);
-    liwc.appendChild(document.createTextNode("WindowCenter = "+event.wc));
+    liwc.appendChild(document.createTextNode("WindowCenter = "+parseFloat(event.wc).toFixed(1)));
     // window width list item
     var liww = document.getElementById("liwwinfotr"+event.target.appExt);
     dwv.html.cleanNode(liww);
-    liww.appendChild(document.createTextNode("WindowWidth = "+event.ww));
+    liww.appendChild(document.createTextNode("WindowWidth = "+parseFloat(event.ww).toFixed(1)));
 };
 
 /**
@@ -92,7 +92,7 @@ dwv.info.updatePositionDiv = function(event)
     // position list item
     var lipos = document.getElementById("liposinfotl"+event.target.appExt);
     dwv.html.cleanNode(lipos);
-    lipos.appendChild(document.createTextNode("Pos = "+event.i+", "+event.j+", "+event.k));
+    lipos.appendChild(document.createTextNode("Pos = "+parseFloat(event.i).toFixed(1)+", "+parseFloat(event.j).toFixed(1)+", "+event.k));
     // value list item
     if( typeof(event.value) != "undefined" )
     {

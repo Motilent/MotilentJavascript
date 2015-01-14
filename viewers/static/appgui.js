@@ -128,11 +128,11 @@ dwv.gui.appendToolboxHtml = function(){
     var history = document.createElement("button");
     history.appendChild(document.createTextNode("History"));
     history.onclick = function() { toggle("#history"); };
-*/
+
     var exportButton = document.createElement("button");
     exportButton.appendChild(document.createTextNode("Export"));
     exportButton.onclick = function() { toggle("#exportData"); };
-
+*/
 
     var tags = document.createElement("button");
     tags.appendChild(document.createTextNode("Tags"));
@@ -158,7 +158,7 @@ dwv.gui.appendToolboxHtml = function(){
     node.appendChild(open);
     node.appendChild(toolbox);
     //node.appendChild(history);
-    node.appendChild(exportButton);
+    //node.appendChild(exportButton);
     node.appendChild(tags);
     node.appendChild(image);
     node.appendChild(image_med);
@@ -227,6 +227,15 @@ dwv.gui.displayLivewireHtml = function(bool){
 };
 dwv.gui.initLivewireHtml = function(){
     dwv.gui.base.initLivewireHtml();
+};
+
+
+// Parametric map selector
+dwv.gui.appendParametricMapSelector = function(){
+    dwv.gui.base.appendParametricMapSelector();
+};
+dwv.gui.appendParametricMap = function(mapName) {
+    dwv.gui.base.appendParametricMap(mapName);
 };
 
 // Navigate

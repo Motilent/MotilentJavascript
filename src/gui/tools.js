@@ -20,10 +20,15 @@ dwv.gui.base = dwv.gui.base || {};
 dwv.gui.base.appendToolboxHtml = function()
 {
     // tool select
-    var toolSelector = dwv.html.createHtmlSelect("toolSelect",dwv.tool.tools);
-    toolSelector.onchange = dwv.gui.onChangeTool;
+    //var toolSelector = dwv.html.createHtmlSelect("toolSelect",dwv.tool.tools);
+    var toolSelectorButtons = dwv.html.createHtmlButtonList("toolSelectButtons",dwv.tool.tools);
+
+
+
+    //toolSelector.onchange = dwv.gui.onChangeTool;
     
     // tool list element
+    /*
     var toolLi = document.createElement("li");
     toolLi.id = "toolLi";
     toolLi.style.display = "none";
@@ -36,10 +41,24 @@ dwv.gui.base.appendToolboxHtml = function()
     while(node.hasChildNodes()) {
         node.removeChild(node.firstChild);
     }
-    // append
     node.appendChild(toolLi);
+    */
+    // append
+    var node = document.getElementById("toolButtonList");
+    node.style.display = "none";
+    // clear it
+    while(node.hasChildNodes()) {
+        node.removeChild(node.firstChild);
+    }
+    node.appendChild(toolSelectorButtons);
+
+
     // trigger create event (mobile)
     $("#toolList").trigger("create");
+
+    $('#toolSelectButtons > button').each(function(index, element){
+        element.onclick = dwv.gui.onChangeTool;
+    });
 };
 
 /**
@@ -51,7 +70,8 @@ dwv.gui.base.appendToolboxHtml = function()
 dwv.gui.base.displayToolboxHtml = function(bool)
 {
     // tool list element
-    dwv.html.displayElement("toolLi", bool);
+    //dwv.html.displayElement("toolLi", bool);
+    dwv.html.displayElement("toolButtonList", bool);
 };
 
 /**
@@ -62,9 +82,9 @@ dwv.gui.base.displayToolboxHtml = function(bool)
 dwv.gui.base.initToolboxHtml = function()
 {
     // tool select: reset selected option
-    var toolSelector = document.getElementById("toolSelect");
-    toolSelector.selectedIndex = 0;
-    dwv.gui.refreshSelect("#toolSelect");
+    //var toolSelector = document.getElementById("toolSelect");
+    //toolSelector.selectedIndex = 0;
+    //dwv.gui.refreshSelect("#toolSelect");
 };
 
 /**
@@ -74,6 +94,7 @@ dwv.gui.base.initToolboxHtml = function()
  */
 dwv.gui.base.appendWindowLevelHtml = function()
 {
+
     // preset select
     var wlSelector = dwv.html.createHtmlSelect("presetSelect",dwv.tool.presets);
     wlSelector.onchange = dwv.gui.onChangeWindowLevelPreset;
@@ -86,13 +107,13 @@ dwv.gui.base.appendWindowLevelHtml = function()
     wlLi.id = "wlLi";
     wlLi.style.display = "none";
     wlLi.appendChild(wlSelector);
-    wlLi.setAttribute("class","ui-block-b");
+    //wlLi.setAttribute("class","ui-block-b");
     // color map list element
     var cmLi = document.createElement("li");
     cmLi.id = "cmLi";
     cmLi.style.display = "none";
     cmLi.appendChild(cmSelector);
-    cmLi.setAttribute("class","ui-block-c");
+    //cmLi.setAttribute("class","ui-block-c");
 
     // node
     var node = document.getElementById("toolList");
@@ -100,6 +121,7 @@ dwv.gui.base.appendWindowLevelHtml = function()
     node.appendChild(wlLi);
     // append color map
     node.appendChild(cmLi);
+
     // trigger create event (mobile)
     $("#toolList").trigger("create");
 };
@@ -113,9 +135,9 @@ dwv.gui.base.appendWindowLevelHtml = function()
 dwv.gui.base.displayWindowLevelHtml = function(bool)
 {
     // presets list element
-    dwv.html.displayElement("wlLi", bool);
+    //dwv.html.displayElement("wlLi", bool);
     // color map list element
-    dwv.html.displayElement("cmLi", bool);
+    //dwv.html.displayElement("cmLi", bool);
 };
 
 /**
@@ -364,6 +386,47 @@ dwv.gui.base.initLivewireHtml = function()
 };
 
 /**
+* Append the parametric map selector to the page
+* @method appendParametricMapSelector
+* @static
+*/
+dwv.gui.base.appendParametricMapSelector = function()
+{
+    var node = document.getElementById("parametricmapdiv");
+    // clear it
+    while(node.hasChildNodes()) {
+        node.removeChild(node.firstChild);
+    }
+
+    var select = document.createElement("select");
+    select.id = "parametricmapselector";
+    select.name = "parametricmapselector";
+    select.onchange = function(){
+        medianViewer.ChangeParametricMap(this.selectedIndex);
+    };
+    node.appendChild(select);
+    $("#roirecords").trigger("create");
+};
+
+/**
+ * Append a parametric map selector to the page
+ * @method appendParametricMap
+ * @param String mapName The name of the parametric map
+ * @static
+ */
+dwv.gui.base.appendParametricMap = function(mapName){
+    // options
+    var option = document.createElement("option");
+    option.value = mapName;
+    option.appendChild(document.createTextNode(dwv.utils.capitaliseFirstLetter(mapName)));
+
+    var select = document.getElementById("parametricmapselector");
+    select.appendChild(option);
+    select.value = mapName;
+};
+
+
+/**
  * Append the Cineloop HTML to the page.
  * @method appendCineloopHtml
  * @static
@@ -375,7 +438,7 @@ dwv.gui.base.appendCineloopHtml = function()
     playbutton.id = "cineloopPlayButton";
     playbutton.name = "cineloopPlayButton";
     playbutton.onclick = dwv.gui.onCineloopPlay;
-    playbutton.setAttribute("style","width:100%; margin-top:0.5em;");
+    playbutton.setAttribute("style","width:50%; margin-top:0.5em;");
     playbutton.setAttribute("class","ui-btn ui-btn-b");
 
     // pause button
@@ -383,7 +446,7 @@ dwv.gui.base.appendCineloopHtml = function()
     pauseButton.id = "cineloopPauseButton";
     pauseButton.name = "cineloopPauseButton";
     pauseButton.onclick = dwv.gui.onCineloopPause;
-    pauseButton.setAttribute("style","width:100%; margin-top:0.5em;");
+    pauseButton.setAttribute("style","width:50%; margin-top:0.5em;");
     pauseButton.setAttribute("class","ui-btn ui-btn-b");
 
     // speed slider
@@ -392,7 +455,7 @@ dwv.gui.base.appendCineloopHtml = function()
     slider.id = "cineloopSlider";
     slider.name = "cineloopSlider";
     slider.onchange = dwv.gui.onCineloopSlider;
-    slider.setAttribute("style","width:100px; margin-top:0.5em;");
+    slider.setAttribute("style","width:200px; margin-top:0.5em;");
     slider.setAttribute("min", "1");
     slider.setAttribute("max", "100");
     slider.setAttribute("value", "50");
@@ -402,13 +465,16 @@ dwv.gui.base.appendCineloopHtml = function()
     text = document.createTextNode("Pause");
     pauseButton.appendChild(text);
 
+    var buttonsDiv = document.createElement("div");
+    buttonsDiv.appendChild(playbutton);
+    buttonsDiv.appendChild(pauseButton);
+
     // list element
     var liElement = document.createElement("li");
     liElement.id = "cineloopLi";
     liElement.style.display = "none";
     liElement.setAttribute("class","ui-block-c");
-    liElement.appendChild(playbutton);
-    liElement.appendChild(pauseButton);
+    liElement.appendChild(buttonsDiv);
     liElement.appendChild(slider);
 
     // node
@@ -448,6 +514,7 @@ dwv.gui.base.initCineloopHtml = function()
  */
 dwv.gui.base.appendZoomAndPanHtml = function()
 {
+    /*
     // reset button
     var button = document.createElement("button");
     button.id = "zoomResetButton";
@@ -469,6 +536,7 @@ dwv.gui.base.appendZoomAndPanHtml = function()
     var node = document.getElementById("toolList");
     // append element
     node.appendChild(liElement);
+    */
     // trigger create event (mobile)
     $("#toolList").trigger("create");
 };

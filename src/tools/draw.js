@@ -145,11 +145,12 @@ dwv.tool.DeleteShapeCommand = function (shape, name, layer)
      * @method execute
      */
     this.execute = function () {
-        var group = shape.getParent();
+        shape.roiEntry.RemoveEntry();
+        //var group = shape.getParent();
         // remove the group from the parent layer
-        group.remove();
+        //group.remove();
         // draw
-        layer.draw();
+        //layer.draw();
     };
     /**
      * Undo the command.
@@ -300,6 +301,25 @@ dwv.tool.Draw = function (app)
      */
     var shapeEditor = new dwv.tool.ShapeEditor();
 
+
+    /**
+     * Get the shape editor.
+     * @property GetShapeEditor
+     * @return Object The shape editor
+     */
+    this.GetShapeEditor = function() {
+        return shapeEditor;
+    };
+
+    /**
+     * Reset the anchors. Call after propagating points
+     * @method ResetAnchors
+     */
+    this.ResetAnchors = function(){
+        shapeEditor.resetAnchors();
+        drawLayer.draw();
+    };
+
     /**
      * Trash draw: a cross.
      * @property trash
@@ -373,6 +393,7 @@ dwv.tool.Draw = function (app)
                 shapeEditor.setShape(selectedShape);
                 shapeEditor.setImage(app.getImage());
                 shapeEditor.enable();
+                selectedShape.roiEntry.SetSelected();
             }
         }
         else {
@@ -746,8 +767,17 @@ dwv.tool.Draw = function (app)
                 //app.getUndoStack().add(delcmd);
             }
             else {
+
+                var delTranslation = {'x': pos.x - dragStartPos.x,
+                    'y': pos.y - dragStartPos.y};
+                var group = this.getParent();
+                group.getChildren().each( function (shape) {
+                    shape.x( shape.x() - delTranslation.x );
+                    shape.y( shape.y() - delTranslation.y );
+                });
+                /*
                 // save drag move
-                var translation = {'x': pos.x - dragStartPos.x, 
+                var translation = {'x': pos.x - dragStartPos.x,
                         'y': pos.y - dragStartPos.y};
                 if ( translation.x !== 0 || translation.y !== 0 ) {
                     var mvcmd = new dwv.tool.MoveShapeCommand(this, cmdName, translation, drawLayer);
@@ -756,6 +786,7 @@ dwv.tool.Draw = function (app)
                 // reset anchors
                 shapeEditor.setAnchorsActive(true);
                 shapeEditor.resetAnchors();
+                */
             }
             // remove trash
             trash.remove();

@@ -81,11 +81,20 @@ dwv.App = function(type)
     // display window scale
     var windowScale = 1;
 
+    var currentParametricMap = null;
+
+    this.GetCurrentParametricMap = function(){
+        return currentParametricMap;
+    };
+
     // Parametric map layer
-    var parametricMapLayer = null;
+    var parametricMapLayers = [];
 
     // Parametric map data
-    var parametricMapData = null;
+    var parametricMapData = [];
+
+    // Parametric map names
+    var parametricMapNames = [];
 
     // Image layer
     var imageLayer = null;
@@ -217,10 +226,10 @@ dwv.App = function(type)
 
     /**
      * Get the parametric map.
-     * @method getParametricMapLayer
-     * @return {Object} The parametric map layer.
+     * @method getParametricMapLayers
+     * @return {Object} The parametric map layers.
      */
-    this.getParametricMapLayer = function() { return parametricMapLayer; };
+    this.getParametricMapLayers = function() { return parametricMapLayers; };
 
     /**
      * Get the parametric map data
@@ -320,8 +329,12 @@ dwv.App = function(type)
         image = null;
         view = null;
         info = null;
-        parametricMapLayer = null;
-        parametricMapData = null;
+        deffField = null;
+        parametricMapLayers = [];
+        parametricMapData = [];
+        parametricMapNames = [];
+        currentParametricMap = null;
+        dwv.gui.appendParametricMapSelector();
     };
     
     /**
@@ -333,9 +346,10 @@ dwv.App = function(type)
             imageLayer.resetLayout(windowScale);
             imageLayer.draw();
         }
-        if (parametricMapLayer){
-            parametricMapLayer.resetLayout(windowScale);
-            parametricMapLayer.draw();
+
+        for (var i = 0; i < parametricMapLayers.length; ++i){
+            parametricMapLayers[i].resetLayout(windowScale);
+            parametricMapLayers[i].draw();
         }
         if ( drawStage ) {
             drawStage.offset( {'x': 0, 'y': 0} );
@@ -544,6 +558,13 @@ dwv.App = function(type)
      * @param Blob file The file to load.
      */
     this.loadZipFile = function(file){
+        // Reset everything there
+        parametricMapData = [];
+        parametricMapLayers = [];
+        currentParametricMap = null;
+        this.reset();
+        medianViewer.reset();
+
         var zipIO = new dwv.io.ZipFile();
         zipIO.onloadDICOM = this.processImageData;
         zipIO.onerror = function(error){
@@ -597,13 +618,27 @@ dwv.App = function(type)
      * @param data Object Parametric map reader data object
      */
     this.processParametricData = function(data){
-        parametricMapData = data;
-        parametricMapLayer = new dwv.html.Layer("parametricMapLayer_med");
-        parametricMapLayer.initialise(image.getSize().getNumberOfColumns(), image.getSize().getNumberOfRows());
-        parametricMapLayer.fillContext();
-        parametricMapLayer.setStyleDisplay(true);
-        parametricMapLayer.setImageData(data.GetImageData());
-        parametricMapLayer.draw();
+        parametricMapData.push(data);
+        if (currentParametricMap==null)
+            currentParametricMap = 0;
+        else
+            ++currentParametricMap;
+
+
+        var newLayer = new dwv.html.Layer("parametricMapLayer_med");
+        parametricMapLayers.push(newLayer);
+
+        newLayer.initialise(image.getSize().getNumberOfColumns(), image.getSize().getNumberOfRows());
+        newLayer.fillContext();
+        newLayer.setImageData(data.GetImageData());
+
+        for (var i = 0; i < parametricMapLayers.length; ++i){
+            parametricMapLayers[i].setStyleDisplay(false);
+        }
+        parametricMapLayers[currentParametricMap].setStyleDisplay(true);
+        parametricMapLayers[currentParametricMap].draw();
+
+       // Add to layers array
 
         paraWidth = data.GetNumberOfColumns();
         paraHeight = data.GetNumberOfRows();
@@ -612,7 +647,32 @@ dwv.App = function(type)
         self.resetLayout();
         self.resize();
 
+        dwv.gui.appendParametricMap(data.GetName());
+        parametricMapNames.push(data.GetName());
         //$('#imageLayer_med').hide();
+    };
+
+    /**
+     * Get the parametric map names
+     * @returns {Array} Array of strings
+     */
+    this.GetParametricMapNames = function(){
+        return parametricMapNames;
+    };
+    /**
+     * Change the currently displayed parametric map
+     * @method ChangeParametricMap
+     * @param Number mapNumber The number of the parametric map
+     */
+    this.ChangeParametricMap = function(mapNumber){
+        if (mapNumber < parametricMapLayers.length){
+            currentParametricMap = mapNumber;
+            for (var i = 0; i < parametricMapLayers.length; ++i){
+                parametricMapLayers[i].setStyleDisplay(false);
+            }
+            parametricMapLayers[mapNumber].setStyleDisplay(true);
+            parametricMapLayers[mapNumber].draw();
+        }
     };
 
     /**
@@ -751,16 +811,16 @@ dwv.App = function(type)
             imageLayer.zoom(iZoomX, iZoomY, 0, 0);
             imageLayer.draw();
         }
-        if (parametricMapLayer){
+        for (var i = 0; i < parametricMapLayers.length; ++i){
             var newPWidth = parseInt(windowScale*paraWidth, 10);
             var newPHeight = parseInt(windowScale*paraHeight, 10);
             paraMul = newHeight/newPHeight;
             var iZoomX = imageLayer.getZoom().x * paraMul;
             var iZoomY = imageLayer.getZoom().y * paraMul;
-            parametricMapLayer.setWidth(newWidth);
-            parametricMapLayer.setHeight(newHeight);
-            parametricMapLayer.zoom(iZoomX, iZoomY, 0, 0);
-            parametricMapLayer.draw();
+            parametricMapLayers[i].setWidth(newWidth);
+            parametricMapLayers[i].setHeight(newHeight);
+            parametricMapLayers[i].zoom(iZoomX, iZoomY, 0, 0);
+            parametricMapLayers[i].draw();
         }
         // resize draw stage
         if( drawStage ) {

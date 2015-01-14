@@ -53,7 +53,7 @@ dwv.io.ZipFile.prototype.load = function(file)
         }
         // force 100% progress (sometimes with firefox)
         var endEvent = {lengthComputable: true, loaded: 1, total: 1};
-        dwv.gui.updateProgress(endEvent);
+        //dwv.gui.updateProgress(endEvent);
 
         if (++dicomLoadCount == dicomEntries.length){
             self.loadParametricMapEntries();
@@ -81,7 +81,7 @@ dwv.io.ZipFile.prototype.load = function(file)
         }
         // force 100% progress (sometimes with firefox)
         var endEvent = {lengthComputable: true, loaded: 1, total: 1};
-        dwv.gui.updateProgress(endEvent);
+        //dwv.gui.updateProgress(endEvent);
         if (++parametricLoadCount == parametricMapEntries.length){
             self.loadDeformationFieldEntries();
         }
@@ -107,7 +107,11 @@ dwv.io.ZipFile.prototype.load = function(file)
         }
         // force 100% progress (sometimes with firefox)
         var endEvent = {lengthComputable: true, loaded: 1, total: 1};
-        dwv.gui.updateProgress(endEvent);
+        if (++deformationLoadCount == deformationFieldEntries.length){
+            dwv.gui.updateProgress(endEvent);
+            alert("File loaded");
+        }
+        //dwv.gui.updateProgress(endEvent);
     };
 
     // Create file bins for DICOM files, deformation field, and parametric maps
@@ -117,6 +121,7 @@ dwv.io.ZipFile.prototype.load = function(file)
 
     var dicomLoadCount = 0;
     var parametricLoadCount = 0;
+    var deformationLoadCount = 0;
 
     var self = this;
 

@@ -14,7 +14,6 @@ body { background-color: #222; color: white;
 #pageHeader h1 { display: inline-block; margin: 0; color: #fff; }
 #pageHeader a { color: #ddf; }
 #pageHeader #toolbar { display: inline-block; float: right; }
-#toolbox li:first-child { list-style-type: none; padding-bottom: 10px; margin-left: -20px; }
 #pageMain { position: absolute; height: 92%; width: 99%; bottom: 5px; left: 5px; background-color: #333; }
 #infotl { color: #333; text-shadow: 0 1px 0 #fff; }
 #infotl_med { color: #333; text-shadow: 0 1px 0 #fff; }
@@ -120,8 +119,21 @@ body { background-color: #222; color: white;
 
 <!-- Toolbox -->
 <div id="toolbox" title="Toolbox">
+  <div id="toolButtonList"></div>
 <ul id="toolList"></ul>
 </div>
+
+  <!-- ROI table -->
+  <div id="roirecords" title="ROIs">
+
+    <div id="roibuttonsdiv"></div>
+    <div id="parametricmapdiv"></div>
+
+    <table id="roitable">
+
+    </table>
+
+  </div>
 
 
 <!-- History -->

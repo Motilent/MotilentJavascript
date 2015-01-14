@@ -27,6 +27,7 @@ dwv.deformationfield.getDataFromBuffer = function(buffer)
     var headerChecksum = dView.getUint8(8, true);
     var majorVersion = dView.getUint8(9, true);
     var minorVersion = dView.getUint8(10, true);
+    var floatByteLength = dView.getUint8(11, true);
     var offsetToData = dView.getUint32(16, true);
     var dataLength = dView.getUint32(20, true);
     var noCols = dView.getUint16(24, true);
@@ -40,10 +41,16 @@ dwv.deformationfield.getDataFromBuffer = function(buffer)
     console.log('Number of rows ' + noRows);
     console.log('Number of time points ' + noTimePoints);
 
-    var floatArray = new Float32Array(buffer, offsetToData, dataLength);
+    var floatArray = null;
+    if (floatByteLength == 4)
+        floatArray = new Float32Array(buffer, offsetToData, dataLength);
+    else if (floatByteLength == 8)
+        floatArray = new Float64Array(buffer, offsetToData, dataLength);
+    else
+        throw "Float byte length of unknown size";
+
     if (floatArray.length != noCols*noRows*noTimePoints*noDimensions){
-        alert("File dimensions mismatch");
-        return null;
+        throw "File dimensions mismatch";
     }
 
     var newDef = new dwv.deformationfield.DeformationData(noCols, noRows, noTimePoints, noDimensions, floatArray);

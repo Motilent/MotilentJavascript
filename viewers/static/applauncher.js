@@ -21,12 +21,15 @@ $(document).ready( function()
     $("#openData").dialog({ position: 
         {my: "left top", at: "left top", of: "#pageMain"} });
     $("#toolbox").dialog({ position: 
-        {my: "left top+160", at: "left top", of: "#pageMain"} });
-    $("#toolbox").height("170px");
+        {my: "left top+160", at: "left top", of: "#pageMain"}, height:225});
     //$("#history").dialog({ position:
      //   {my: "left top+350", at: "left top", of: "#pageMain"} });
-    $('#exportData').dialog({ position:
-        {my: "left top+395", at: "left top", of: "#pageMain"} });
+    //$('#exportData').dialog({ position:
+    //    {my: "left top+395", at: "left top", of: "#pageMain"} });
+
+    $('#roirecords').dialog({ position:
+    {my: "left top+395", at: "left top", of: "#pageMain"},
+        height: 200});
 
     $("#tags").dialog({ position: 
         {my: "right top", at: "right top", of: "#pageMain"},
@@ -98,7 +101,7 @@ $(document).ready( function()
     dwv.tool.tools.draw_med = new dwv.tool.Draw(medianViewer);
     dwv.tool.tools.draw.setSiblingTool(dwv.tool.tools.draw_med);
     dwv.tool.tools.draw_med.setSiblingTool(dwv.tool.tools.draw);
-    dwv.tool.tools.propagate = new dwv.tool.Propagate(app, medianViewer, dwv.tool.tools.draw, dwv.tool.tools.draw_med, dwv.tool.tools["Zoom/Pan"]);
+    //dwv.tool.tools.propagate = new dwv.tool.Propagate(app, medianViewer, dwv.tool.tools.draw, dwv.tool.tools.draw_med, dwv.tool.tools["Zoom/Pan"]);
     dwv.tool.tools.cineloop = new dwv.tool.Cineloop(app);
     medianViewer.setToolBox(app.getToolBox());
 
@@ -130,6 +133,8 @@ $(document).ready( function()
     dwv.gui.appendDrawHtml();
     dwv.gui.appendPropagateHtml();
     dwv.gui.appendCineloopHtml();
+
+    dwv.gui.appendParametricMapSelector();
     //dwv.gui.appendLivewireHtml();
     
     // append filter container HTML

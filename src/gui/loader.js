@@ -221,17 +221,17 @@ dwv.gui.base.displayParametricMapLoadHtml = function(bool)
  */
 dwv.gui.base.appendExportboxHtml = function(){
     // exporter select
-    var exporterSelector = dwv.html.createHtmlSelect("exporterSelect",dwv.io.exporters);
-    exporterSelector.onchange = dwv.gui.onChangeExporter;
+    //var exporterSelector = dwv.html.createHtmlSelect("exporterSelect",dwv.io.exporters);
+    //exporterSelector.onchange = dwv.gui.onChangeExporter;
 
     // node
-    var node = document.getElementById("exporterlist");
+    var node = document.getElementById("roibuttonsdiv");
     // clear it
     while(node.hasChildNodes()) {
         node.removeChild(node.firstChild);
     }
     // append
-    node.appendChild(exporterSelector);
+    //node.appendChild(exporterSelector);
     // trigger create event (mobile)
     $("#exporterlist").trigger("create");
 };
@@ -246,20 +246,21 @@ dwv.gui.base.appendExportHtml = function(){
     var exportOutput = document.createElement("input");
     exportOutput.onclick = dwv.gui.onExportRois;
     exportOutput.type = "button";
-    exportOutput.multiple = true;
+    exportOutput.multiple = false;
     exportOutput.id = "exportrois";
-    exportOutput.value = "Export File";
+    exportOutput.value = "Save ROIs";
     exportOutput.setAttribute("data-clear-btn","true");
-    exportOutput.setAttribute("data-mini","true");
+    exportOutput.setAttribute("data-mini","false");
+
 
     // associated div
     var fileLoadDiv = document.createElement("div");
     fileLoadDiv.id = "roifilesdiv";
-    fileLoadDiv.style.display = "none";
+    fileLoadDiv.style.display = "true";
     fileLoadDiv.appendChild(exportOutput);
 
     // node
-    var node = document.getElementById("exporterlist");
+    var node = document.getElementById("roibuttonsdiv");
     // append
     node.appendChild(fileLoadDiv);
     // trigger create event (mobile)

@@ -251,9 +251,12 @@ dwv.tool.ZoomAndPan = function(app)
             app.getImageLayer().zoom(newZoom.x, newZoom.y, cx2, cy2);
             app.getImageLayer().draw();
 
-            if (app.getParametricMapLayer()){
-                app.getParametricMapLayer().zoom(newZoom.x * app.GetParametricMapScaleMultiplier(), newZoom.y * app.GetParametricMapScaleMultiplier(), cx2, cy2);
-                app.getParametricMapLayer().draw();
+            var pMapLayers = app.getParametricMapLayers();
+            var pMapSelected = app.GetCurrentParametricMap();
+            for (var i = 0; i < pMapLayers.length; ++i){
+                pMapLayers[i].zoom(newZoom.x * app.GetParametricMapScaleMultiplier(), newZoom.y * app.GetParametricMapScaleMultiplier(), cx2, cy2);
+                if (i == pMapSelected)
+                    pMapLayers[i].draw();
             }
         }
         if( app.getDrawStage() ) { 
@@ -306,13 +309,16 @@ dwv.tool.ZoomAndPan = function(app)
             layer.translate(txx, tyy);
             layer.draw();
 
-            if (app.getParametricMapLayer()){
-                layer = app.getParametricMapLayer();
+            var pMapLayers = app.getParametricMapLayers();
+            var pMapSelected = app.GetCurrentParametricMap();
+            for (var i = 0; i < pMapLayers.length; ++i){
+                layer = pMapLayers[i];
                 zoom = layer.getZoom();
                 txx = tx / zoom.x;
                 tyy = ty / zoom.y;
-                app.getParametricMapLayer().translate(txx, tyy);
-                app.getParametricMapLayer().draw();
+                layer.translate(txx, tyy);
+                if (i == pMapSelected)
+                    layer.draw();
             }
         }
         if( app.getDrawStage() ) { 

@@ -395,6 +395,54 @@ dwv.html.createHtmlSelect = function(name, list) {
     return select;
 };
 
+
+/**
+ * Create a HTML button list from an input array of options.
+ * The values of the options are the name of the option made lower case.
+ * It is left to the user to set the 'onchange' method of the select.
+ * @method createHtmlButtonList
+ * @static
+ * @param {String} name The name of the HTML select.
+ * @param {Mixed} list The list of options of the HTML select.
+ * @return {Object} The created HTML select.
+ */
+dwv.html.createHtmlButtonList = function(name, list) {
+    // select
+    var select = document.createElement("div");
+    select.id = name;
+    select.name = name;
+    // options
+    var option;
+    if( list instanceof Array )
+    {
+        for ( var i in list )
+        {
+
+            option = document.createElement("button");
+            option.value = list[i];
+            option.appendChild(document.createTextNode(dwv.utils.capitaliseFirstLetter(list[i])));
+            select.appendChild(option);
+        }
+    }
+    else if( typeof list === 'object')
+    {
+        for ( var item in list )
+        {
+            if (item.match(/.*_med.*/))
+                continue;
+            option = document.createElement("button");
+            option.value = item;
+            option.appendChild(document.createTextNode(dwv.utils.capitaliseFirstLetter(item)));
+            select.appendChild(option);
+        }
+    }
+    else
+    {
+        throw new Error("Unsupported input list type.");
+    }
+    return select;
+};
+
 /**
  * Get a list of parameters from an input URI that looks like:
  *  [dwv root]?input=encodeURI([root]?key0=value0&key1=value1)

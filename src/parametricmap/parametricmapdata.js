@@ -13,9 +13,10 @@ dwv.parametricmap = dwv.parametricmap || {};
  * @param number noColumns The number of deformation map columns.
  * @param number noRows The number of deformation map rows.
  * @param Float32Array floatArray The data array.
+ * @param String mapName The name of the parametric map
  */
 
-dwv.parametricmap.ParametricMapData = function(noColumns, noRows, floatArray){
+dwv.parametricmap.ParametricMapData = function(noColumns, noRows, floatArray, mapName){
 
     var scaleToRows = noRows;
     var scaleToCols = noColumns;
@@ -59,6 +60,10 @@ dwv.parametricmap.ParametricMapData = function(noColumns, noRows, floatArray){
         }
     };
 
+    this.GetName = function(){
+        return mapName;
+    };
+
     var canvas = document.createElement('canvas');
     canvas.width = noColumns;
     canvas.height = noRows;
@@ -78,6 +83,70 @@ dwv.parametricmap.ParametricMapData = function(noColumns, noRows, floatArray){
         }
     }
 
+
+    // Extract shapes from medianImage
+    var motilityLayers = app.getDrawLayers();
+    var allLayers = [];
+
+    var dataWidth = app.GetDataWidth();
+    var dataHeight = app.GetDataHeight();
+
+    var tempStage = new Kinetic.Stage({
+        container: 'hiddencanvas',
+        width: dataWidth,
+        height: dataHeight,
+        listening: false
+    });
+    var tempLayer = new Kinetic.Layer({
+        listening: false,
+        hitGraphEnabled: false,
+        visible: true
+    });
+    tempStage.add(tempLayer);
+
+
+    this.GetParametricMapValue = function(shape){
+        var cloneShape = shape.clone();
+        cloneShape.stroke('white');
+        cloneShape.fill('white');
+        cloneShape.strokeWidth(0);
+        tempLayer.add(cloneShape);
+        tempLayer.draw();
+        cloneShape.remove();
+
+        // Get parametric map layer
+        var paraMapData = this;
+        var paraValue = 0;
+        if (typeof paraMapData != 'undefined') {
+            paraMapData.SetColumns(dataWidth);
+            paraMapData.SetRows(dataHeight);
+
+            // Iterate over temp canvas
+            var context = tempLayer.getCanvas().getContext();
+            var imgData = context.getImageData(0, 0, dataWidth, dataHeight);
+            var index = 0, weight = 0, sum = 0;
+            for (var r = 0; r < dataHeight; ++r) {
+                for (var c = 0; c < dataWidth; ++c) {
+                    // Red channel
+
+                    if (imgData.data[index * 4] > 0) {
+                        // Find parametric map value
+                        sum += paraMapData.GetInterpolatedScaledImageData(c,r);
+                        ++weight;
+                    }
+
+                    ++index;
+                }
+            }
+            console.log('Weight:' + weight);
+            console.log('Mean: ' + sum/weight);
+            if (sum > 0)
+                paraValue = sum/weight;
+
+        }
+        tempLayer.draw();
+        return paraValue;
+    };
 
 
     this.GetNumberOfRows = function(){

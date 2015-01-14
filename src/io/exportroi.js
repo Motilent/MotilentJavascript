@@ -31,10 +31,71 @@ dwv.io.ExportROI = function()
  * @param motDraw
  * @param medDraw
  */
-dwv.io.ExportROI.staticSetDrawTools = function(motDraw,medDraw){
+dwv.io.ExportROI.staticSetDrawTools = function(motDraw,medDraw) {
     motilityDrawTool = motDraw;
     medianDrawTool = medDraw;
 };
+
+dwv.io.ExportROI.MAXMAPS = 10;
+
+/**
+ * Create an empty RoiCSVEntry
+ */
+dwv.io.ExportROI.RoiCSVEntry = function(){
+    this.timepoint = null;
+    this.type = null;
+    this.colour = null;
+    this.length = null;
+    this.area = null;
+    this.numberofpoints = null;
+    this.parametricmapvalues = [];
+    this.parametricmapnames = [];
+    this.realpoints = [];
+    this.slicepoints = [];
+
+    for (var i = 0; i < dwv.io.ExportROI.MAXMAPS; ++i){
+        this.parametricmapnames.push(null);
+        this.parametricmapvalues.push(null);
+    }
+
+    this.GenerateText = function (){
+        var str = '';
+        str += this.timepoint + ',';
+        str += this.type + ',';
+        str += this.colour + ',';
+
+        if (this.type == 'roi') {
+            str += ',';
+            str += this.area + ',';
+        }
+        else {
+            str += this.length+ ',';
+            str += ',';
+        }
+        str += this.numberofpoints + ',';
+        for (var i = 0; i < dwv.io.ExportROI.MAXMAPS; ++i) {
+            if (this.parametricmapvalues[i] == null)
+                str += ',';
+            else
+                str += this.parametricmapvalues[i]+ ',';
+        }
+        for (var i = 0; i < dwv.io.ExportROI.MAXMAPS; ++i) {
+            if (this.parametricmapnames[i] == null)
+                str += ',';
+            else
+                str += this.parametricmapnames[i]+ ',';
+        }
+        for (var p = 0; p < this.slicepoints.length; ++p)
+            str += this.slicepoints[p][0] + ',' + this.slicepoints[p][1] + ',';
+
+        for (var p = 0; p < this.realpoints.length; ++p)
+            str += this.realpoints[p][0] + ',' + this.realpoints[p][1] + ',' + this.realpoints[p][2] + ',';
+        str += '\n';
+        return str;
+
+    };
+};
+
 
 /**
  * Save ROIs to file
@@ -48,96 +109,57 @@ dwv.io.ExportROI.prototype.save = function(filename)
     var onsave = this.onsave;
     var onerror = this.onerror;
 
-
     // Extract shapes from medianImage
-    var motilityLayers = app.getDrawLayers();
+    var roiEntries = app.GetRoiRecord().GetROIEntryList();
+    var parametricMapNames = medianViewer.GetParametricMapNames();
+
+    if (parametricMapNames.length > 10)
+        throw "Too many parametric maps. 10 maps are supported";
+
     var allLayers = [];
 
     var dataWidth = app.GetDataWidth();
     var dataHeight = app.GetDataHeight();
 
-    var tempStage = new Kinetic.Stage({
-            container: 'hiddencanvas',
-            width: dataWidth,
-            height: dataHeight,
-            listening: false
-    });
-    var tempLayer = new Kinetic.Layer({
-        listening: false,
-        hitGraphEnabled: false,
-        visible: true
-    });
-    tempStage.add(tempLayer);
+    var RoiCSVEntryList = [];
 
+    for (var r = 0; r < roiEntries.length; ++r){
 
-    // motilityLayers is array of Kinetic.Layer
-    // Each layer has a children object, which is a Kinetic.Collection (Array)
-    // Each Kinetic collection can be indexed to give a Kinetic.Group with two children
-    // child [0] is a Kinetic.Line, child [1] is a Kinetic.Text
+        var noTimePoints = roiEntries[r].GetNumberOfTimepoints();
 
-    for (var i = 0; i < motilityLayers.length; ++i){
-        allLayers.push({
-            Lines: [],
-            ROIs: []
-        });
+        for (var t = 0; t < noTimePoints; ++t){
 
-        for (var s = 0; s < motilityLayers[i].children.length; ++s){
-            var currentShape = motilityLayers[i].children[s].children[0];
-            var currentText = motilityLayers[i].children[s].children[1];
-
-            if (typeof currentShape === 'undefined' ||
-                typeof currentText === 'undefined')
-                continue;
-
-            var cloneShape = currentShape.clone();
-            cloneShape.stroke('white');
-            cloneShape.fill('white');
-            cloneShape.strokeWidth(0);
-            //tempLayer.getCanvas().getContext().clearRect(0, 0, dataWidth, dataHeight);
-            tempLayer.add(cloneShape);
-            tempLayer.draw();
-            cloneShape.remove();
-
-            // Get parametric map layer
-            var paraMapData = medianViewer.getParametricMapData();
-            var paraValue = '';
-            if (typeof paraMapData != 'undefined') {
-                paraMapData.SetColumns(dataWidth);
-                paraMapData.SetRows(dataHeight);
-
-                // Iterate over temp canvas
-                var context = tempLayer.getCanvas().getContext();
-                var imgData = context.getImageData(0, 0, dataWidth, dataHeight);
-                var index = 0, weight = 0, sum = 0;
-                for (var r = 0; r < dataHeight; ++r) {
-                    for (var c = 0; c < dataWidth; ++c) {
-                        // Red channel
-
-                        if (imgData.data[index * 4] > 0) {
-                            // Find parametric map value
-                            sum += paraMapData.GetInterpolatedScaledImageData(c,r);
-                            ++weight;
-                        }
-                        /*
-                        imgData.data[index * 4] = paraMapData.GetInterpolatedScaledImageData(c,r) *10;
-                        imgData.data[index * 4 + 1] = paraMapData.GetInterpolatedScaledImageData(c,r) *10;
-                        imgData.data[index * 4 + 2] = paraMapData.GetInterpolatedScaledImageData(c,r) *10;
-                        imgData.data[index * 4 + 3] = 255;
-                        */
-                        ++index;
-                    }
-                }
-                //tempLayer.getCanvas().getContext().putImageData(imgData, 0, 0);
-                console.log('Shape ' + s);
-                console.log('Weight:' + weight);
-                console.log('Mean: ' + sum/weight);
-                if (sum > 0)
-                    paraValue = sum/weight;
-
+            var entry = new dwv.io.ExportROI.RoiCSVEntry();
+            entry.timepoint = t;
+            entry.type = roiEntries[r].GetType();
+            entry.colour = roiEntries[r].GetColour();
+            if (entry.type == 'line'){
+                entry.length = roiEntries[r].GetMotilityShapes()[t].text.text();
+                entry.length = parseFloat(entry.length.match(/[0-9\.e\+]+/)).toFixed(2);
+                entry.numberofpoints = 2;
             }
-            tempLayer.draw();
+            else{
+                entry.area = roiEntries[r].GetMotilityShapes()[t].text.text();
+                entry.area = parseFloat(entry.area.match(/[0-9\.e\+]+/)).toFixed(2);
+                entry.numberofpoints = roiEntries[r].GetMotilityRoiList()[t].getPoints().length;
+            }
 
-            if (currentShape.points().length > 4){
+            for (var p = 0; p < entry.numberofpoints; ++p){
+                var point = roiEntries[r].GetMotilityRoiList()[t].getPoints()[p];
+                entry.slicepoints.push([point.getX(), point.getY()]);
+                entry.realpoints.push(app.imageToLPHCoords(point.getX()-0.5, point.getY()-0.5));
+            }
+
+            for (var n = 0; n < parametricMapNames.length; ++n) {
+                entry.parametricmapnames[n] = parametricMapNames[n];
+                entry.parametricmapvalues[n] = roiEntries[r].GetMedianShape().shape.parametricMapValues[n];
+            }
+
+
+
+            RoiCSVEntryList.push(entry);
+            /*
+            if (roiEntries[r].GetType() == 'roi'){
                 var newROI = {
                     points: [],
                     colour: currentShape.stroke(),
@@ -163,33 +185,15 @@ dwv.io.ExportROI.prototype.save = function(filename)
                 }
                 allLayers[i].Lines.push(newLine);
             }
+            */
         }
     }
 
 
     // Now create csv file
-    var output = 'Timepoint,Type,Colour,Length/Area(mm),Mean Parametric Map Value,Points\n';
-    for (var i = 0; i < allLayers.length; ++i) {
-
-            for (var r = 0; r < allLayers[i].Lines.length; ++r) {
-                output += i + ',Line,' + allLayers[i].Lines[r].colour + ',' + allLayers[i].Lines[r].length.match(/[0-9\.e\+]+/) + ',' + allLayers[i].Lines[r].paraValue;
-                for (var p = 0; p < allLayers[i].Lines[r].points.length; ++p) {
-                    for (var x = 0; x < allLayers[i].Lines[r].points[p].length; ++x) {
-                        output += ',' + allLayers[i].Lines[r].points[p][x];
-                    }
-                }
-                output += '\n';
-            }
-
-            for (var r = 0; r < allLayers[i].ROIs.length; ++r) {
-                output += i + ',ROI,' + allLayers[i].ROIs[r].colour + ',' + parseFloat(allLayers[i].ROIs[r].area.match(/[0-9\.e\+]+/)).toFixed(1)  + ',' + allLayers[i].ROIs[r].paraValue;
-                for (var p = 0; p < allLayers[i].ROIs[r].points.length; ++p) {
-                    for (var x = 0; x < allLayers[i].ROIs[r].points[p].length; ++x) {
-                        output += ',' + allLayers[i].ROIs[r].points[p][x];
-                    }
-                }
-                output += '\n';
-            }
+    var output = 'Timepoint,Type,Colour,Length,Area,Number of Points,Mean Parametric Map Values,,,,,,,,,,Parametric Map Names,,,,,,,,,,Points\n';
+    for (var i = 0; i < RoiCSVEntryList.length; ++i) {
+        output += RoiCSVEntryList[i].GenerateText();
     }
 
     var blob = new Blob([output], {type: "text/plain;charset=utf-8"});

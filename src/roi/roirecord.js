@@ -177,9 +177,46 @@ dwv.roi.UpdateShapeFromRoi = function(roi, shape, displayApp) {
 };
 
 dwv.roi.RoiEntry = function(id, type, colour, medianRoi, motilityRoiList, medianShape, motilityShapes, roiRecord){
-    this.colour = colour;
     this.id = id;
+    this.GetType = function(){
+        return type;
+    };
 
+    this.GetColour = function(){
+        return colour;
+    };
+
+    this.GetNumberOfTimepoints = function(){
+        return motilityShapes.length;
+    } ;
+
+    this.GetMedianShape = function() {
+        return medianShape;
+    };
+
+    this.GetMotilityShapes = function() {
+      return motilityShapes;
+    };
+
+    this.GetMotilityRoiList = function(){
+        return motilityRoiList;
+    };
+
+    this.RemoveEntry = function(){
+        var layer = medianShape.shape.getLayer();
+        medianShape.shape.getParent().remove();
+        layer.draw();
+        for (var t = 0; t < roiRecord.GetDeformationData().GetNoTimePoints(); ++t) {
+            layer = motilityShapes[t].shape.getLayer();
+            motilityShapes[t].shape.getParent().remove();
+            layer.draw();
+        }
+        roiRecord.RemoveEntry(id);
+    };
+
+    this.SetSelected = function(){
+        roiRecord.SelectRow(id);
+    };
 
     this.SetNewMedianROIPoints = function(newPoints, finished){
         var pointArr = [];
@@ -206,6 +243,13 @@ dwv.roi.RoiEntry = function(id, type, colour, medianRoi, motilityRoiList, median
                     motilityRoiList[t].addPoints(transformedPoints[t]);
                     dwv.roi.UpdateShapeFromRoi(motilityRoiList[t], motilityShapes[t], app);
                 }
+
+                medianShape.shape.parametricMapValues = [];
+                var paraDataArray = medianViewer.getParametricMapData();
+                for (var i = 0; i < paraDataArray.length; ++i){
+                    medianShape.shape.parametricMapValues.push(paraDataArray[i].GetParametricMapValue(medianShape.shape));
+                }
+                roiRecord.AmendTableRow(id, type, medianShape.text.text(), medianShape.shape.parametricMapValues);
             }
 
         }
@@ -218,8 +262,17 @@ dwv.roi.RoiEntry = function(id, type, colour, medianRoi, motilityRoiList, median
                     motilityRoiList[t] = new dwv.math.Line(transformedPoints[t][0], transformedPoints[t][pointArr.length-1]);
                     dwv.roi.UpdateShapeFromLine(motilityRoiList[t], motilityShapes[t], app);
                 }
+
+                medianShape.shape.parametricMapValues = [];
+                var paraDataArray = medianViewer.getParametricMapData();
+                for (var i = 0; i < paraDataArray.length; ++i){
+                    medianShape.shape.parametricMapValues.push(paraDataArray[i].GetParametricMapValue(medianShape.shape));
+                }
+                roiRecord.AmendTableRow(id, type, medianShape.text.text(), medianShape.shape.parametricMapValues);
             }
+
         }
+        roiRecord.GetMotilityDrawTool().ResetAnchors();
     };
 
     this.SetNewMotilityROIPoints = function(newPoints, finished) {
@@ -233,6 +286,7 @@ dwv.roi.RoiEntry = function(id, type, colour, medianRoi, motilityRoiList, median
             motilityRoiList[currentSlice].addPoints(pointArr);
             dwv.roi.UpdateShapeFromRoi(motilityRoiList[currentSlice], motilityShapes[currentSlice], app);
         }
+        roiRecord.GetMedianDrawTool().ResetAnchors();
     }
 };
 
@@ -251,10 +305,124 @@ dwv.roi.TransformPoints = function(points, deformationData, timePoint){
 dwv.roi.RoiRecord = function(motilityDrawTool, medianDrawTool, deformationData){
     var ROIid = 0;
     var ROIEntryList = [];
+    var self = this;
+
+    this.GetROIEntryList = function(){
+        return ROIEntryList;
+    };
+
+    this.RemoveEntry = function(id){
+        for (var i = 0; i < ROIEntryList.length; ++i){
+            if (ROIEntryList[i].id == id){
+                ROIEntryList.splice(i,1);
+                if ( ROIid == id+1)
+                    --ROIid;
+
+                this.RemoveTableRow(id);
+                break;
+            }
+        }
+    };
+    var GenerateTableHeader = function(){
+        $('#roitable').empty();
+        var $row = ($('<tr>')).appendTo($('#roitable'));
+        $('<td>').appendTo($row).text('ID');
+        $('<td>').appendTo($row).text('Type');
+        $('<td>').appendTo($row).text('Length/Area');
+        $('<td>').appendTo($row).text('Para Values');
+        var paraDataArray = medianViewer.getParametricMapData();
+        for (var i = 0; i < paraDataArray.length; ++i){
+            $('<td>').appendTo($row);
+        }
+
+    };
+
+    GenerateTableHeader();
+
+    this.RemoveTableRow = function(id){
+        $('#roitable tr').each(function(index, element){
+            if (index == 0)
+                return;
+            if (parseInt($(element).children()[0].innerHTML) == id ){
+                $(element).remove();
+            }
+        });
+    };
+
+    this.AmendTableRow  = function(id, type, lengtharea, paravalues){
+        $('#roitable tr').each(function(index, element){
+            if (index == 0)
+                return;
+            if (parseInt($(element).children()[0].innerHTML) == id ){
+                $(element).children()[1].innerHTML = type;
+                $(element).children()[2].innerHTML = lengtharea;
+
+                for (var i = 0; i < paravalues.length; ++i)
+                    $(element).children()[3+i].innerHTML = paravalues[i].toPrecision(3);
+
+            }
+        });
+    };
+
+    this.SelectRow = function(id){
+        $('#roitable tr').each(function(index, element){
+            if (index == 0)
+                return;
+            if (parseInt($(element).children()[0].innerHTML) == id ){
+                $('#roitable tr').css('background', 'none');
+                $(element).css('background', 'red');
+            }
+        });
+        for (var i = 0; i < self.GetROIEntryList().length; ++i){
+            if (self.GetROIEntryList()[i].id == id) {
+                motilityDrawTool.ResetAnchors();
+                medianDrawTool.ResetAnchors();
+                var shapeEditor = medianDrawTool.GetShapeEditor();
+                shapeEditor.disable();
+                shapeEditor.setShape(self.GetROIEntryList()[i].GetMedianShape().shape);
+                shapeEditor.setImage(medianViewer.getImage());
+                shapeEditor.enable();
+
+                shapeEditor = motilityDrawTool.GetShapeEditor();
+                shapeEditor.disable();
+                shapeEditor.setShape(self.GetROIEntryList()[i].GetMotilityShapes()[app.GetCurrentSlice()].shape);
+                shapeEditor.setImage(app.getImage());
+                shapeEditor.enable();
+            }
+        }
+    };
+
+    this.AddTableRow = function(id, type, lengtharea, paravalues){
+        var $row = ($('<tr>')).appendTo($('#roitable'));
+        $('<td>').appendTo($row).text(id);
+        $('<td>').appendTo($row).text(type);
+        $('<td>').appendTo($row).text(lengtharea);
+
+        for (var i = 0; i < paravalues.length; ++i)
+        $('<td>').appendTo($row).text(paravalues[i].toPrecision(3));
+
+        $row.click('on', function(event){
+            //$('#roitable tr').css('background', 'none');
+            //$(event.target).parent().css('background', 'red');
+            self.SelectRow(id);
+        });
+    };
+
+    this.GenerateTable = function(){
+        this.GenerateTableHeader();
+    };
 
 
     this.GetDeformationData = function(){
         return deformationData;
+    };
+
+    this.GetMedianDrawTool = function(){
+        return medianDrawTool;
+    };
+
+    this.GetMotilityDrawTool = function(){
+        return motilityDrawTool;
     };
 
     this.AddRoiEntry = function(type, colour, roiObject, roiShape){
@@ -292,12 +460,21 @@ dwv.roi.RoiRecord = function(motilityDrawTool, medianDrawTool, deformationData){
             motilityRois.push(roi);
         }
 
-        var roiEntry = new dwv.roi.RoiEntry(++ROIid, type, colour, roiObject, motilityRois, roiShape, motilityShapes, this);
+        var roiEntry = new dwv.roi.RoiEntry(ROIid++, type, colour, roiObject, motilityRois, roiShape, motilityShapes, this);
         roiShape.shape.roiEntry = roiEntry;
+        roiShape.shape.parametricMapValues = [];
+        var paraDataArray = medianViewer.getParametricMapData();
+        for (var i = 0; i < paraDataArray.length; ++i){
+            roiShape.shape.parametricMapValues.push(paraDataArray[i].GetParametricMapValue(roiShape.shape));
+        }
+
         for (var i = 0; i < deformationData.GetNoTimePoints(); ++i){
             motilityShapes[i].shape.roiEntry = roiEntry;
         }
         ROIEntryList.push(roiEntry);
+
+        this.AddTableRow(ROIid-1, type, roiShape.text.text(), roiShape.shape.parametricMapValues);
+
         return roiEntry;
     }
 };

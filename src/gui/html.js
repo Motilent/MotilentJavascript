@@ -413,15 +413,18 @@ dwv.html.createHtmlButtonList = function(name, list) {
     select.name = name;
     // options
     var option;
+
     if( list instanceof Array )
     {
         for ( var i in list )
         {
-
             option = document.createElement("button");
             option.value = list[i];
+            option.style.class = "toolbutton";
             option.appendChild(document.createTextNode(dwv.utils.capitaliseFirstLetter(list[i])));
+
             select.appendChild(option);
+
         }
     }
     else if( typeof list === 'object')
@@ -432,8 +435,10 @@ dwv.html.createHtmlButtonList = function(name, list) {
                 continue;
             option = document.createElement("button");
             option.value = item;
+            option.style.class = "toolbutton";
             option.appendChild(document.createTextNode(dwv.utils.capitaliseFirstLetter(item)));
             select.appendChild(option);
+
         }
     }
     else

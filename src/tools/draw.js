@@ -397,6 +397,8 @@ dwv.tool.Draw = function (app)
             }
         }
         else {
+            if (app.GetType() == 'motility')
+                return;
             if (!started || !clickTypeShape) {
                 // disable editor
                 shapeEditor.disable();
@@ -472,6 +474,23 @@ dwv.tool.Draw = function (app)
             // draw
             command.execute();
         }
+    };
+
+    /**
+     * Handle mouse wheel event.
+     * @method mousewheel
+     * @param {Object} event The mouse wheel event.
+     */
+    this.mousewheel = function(event){
+        // ev.wheelDelta on chrome is 120
+        // update GUI
+        if( event.wheelDelta > 0 ) {
+            app.getView().incrementSliceNb();
+        }
+        else {
+            app.getView().decrementSliceNb();
+        }
+        self.display(true);
     };
 
     /**

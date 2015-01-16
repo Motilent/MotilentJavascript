@@ -126,6 +126,47 @@ dwv.gui.base.displayZipFileLoadHtml = function(bool)
 };
 
 
+/**
+ * Append the roi file load HTML to the page.
+ * @method appendRoiFileLoadHtml
+ * @static
+ */
+dwv.gui.base.appendRoiFileLoadHtml = function() {
+    // input
+    var fileLoadInput = document.createElement("input");
+    fileLoadInput.onchange = dwv.gui.onChangeRoiFile;
+    fileLoadInput.type = "file";
+    fileLoadInput.multiple = false;
+    fileLoadInput.id = "roifile";
+    fileLoadInput.setAttribute("data-clear-btn","true");
+    fileLoadInput.setAttribute("data-mini","true");
+
+    // associated div
+    var fileLoadDiv = document.createElement("div");
+    fileLoadDiv.id = "roifilesloaddiv";
+    fileLoadDiv.style.display = "none";
+    fileLoadDiv.appendChild(fileLoadInput);
+
+    // node
+    var node = document.getElementById("loaderlist");
+    // append
+    node.appendChild(fileLoadDiv);
+    // trigger create event (mobile)
+    $("#loaderlist").trigger("create");
+};
+
+/**
+ * Display the roi file load HTML.
+ * @method displayRoiFileLoadHtml
+ * @static
+ * @param {Boolean} bool True to display, false to hide.
+ */
+dwv.gui.base.displayRoiFileLoadHtml = function(bool){
+    // file div element
+    var filediv = document.getElementById("roifilesloaddiv");
+    filediv.style.display = bool ? "" : "none";
+};
+
 
 /**
  * Append the file deformation HTML to the page.

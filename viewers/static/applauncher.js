@@ -46,7 +46,7 @@ $(document).ready( function()
     $("#layerDialog").dialog({ width: "auto", resizable: false });
     // Resizable but keep aspect ratio
     // TODO it seems to add a border that bothers getting the cursor position...
-    //$("#layerContainer").resizable({ aspectRatio: true });
+    $("#layerContainer").resizable({ aspectRatio: true });
 
 
     // image dialog
@@ -56,16 +56,17 @@ $(document).ready( function()
     $("#layerDialog_med").dialog({ width: "auto", resizable: false });
     // Resizable but keep aspect ratio
     // TODO it seems to add a border that bothers getting the cursor position...
-    //$("#layerContainer").resizable({ aspectRatio: true });
+    $("#layerContainer_med").resizable({ aspectRatio: true });
 
 
     // Add required loaders to the loader list
     dwv.io.loaders = {};
-    dwv.io.loaders["Zip File"] = dwv.io.ZipFile;
-    dwv.io.loaders.file = dwv.io.File;
-    dwv.io.loaders.url = dwv.io.Url;
-    dwv.io.loaders["Deformation File"] = dwv.io.DeformationFile;
-    dwv.io.loaders["Parametric Map"] = dwv.io.ParametricMap;
+    dwv.io.loaders["Data"] = dwv.io.ZipFile;
+    dwv.io.loaders["ROI File"] = dwv.io.ExportROI;
+    //dwv.io.loaders.file = dwv.io.File;
+    //dwv.io.loaders.url = dwv.io.Url;
+    //dwv.io.loaders["Deformation File"] = dwv.io.DeformationFile;
+    //dwv.io.loaders["Parametric Map"] = dwv.io.ParametricMap;
 
     // Add exporters to exporter list
     dwv.io.exporters = {};
@@ -76,13 +77,16 @@ $(document).ready( function()
     dwv.gui.appendLoadboxHtml();
     // append loaders HTML
     dwv.gui.appendZipFileLoadHtml();
-    dwv.gui.appendFileLoadHtml();
+    dwv.gui.appendRoiFileLoadHtml();
+    //dwv.gui.appendFileLoadHtml();
 
-    dwv.gui.appendUrlLoadHtml();
-    dwv.gui.appendDeformationLoadHtml();
-    dwv.gui.appendParametricMapLoadHtml();
-    dwv.gui.appendZipFileLoadHtml();
+    //dwv.gui.appendUrlLoadHtml();
+    //dwv.gui.appendDeformationLoadHtml();
+    //dwv.gui.appendParametricMapLoadHtml();
+    //dwv.gui.appendZipFileLoadHtml();
+    dwv.gui.displayRoiFileLoadHtml(false);
     dwv.gui.displayZipFileLoadHtml(true);
+
 
 
     // append exporters HTML

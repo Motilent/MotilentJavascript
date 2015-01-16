@@ -348,7 +348,7 @@ dwv.image.Image = function(size, spacing, buffer, slicePositions, temporalPositi
      * Append a slice to the image.
      * @method appendSlice
      * @param {Image} The slice to append.
-     */ 
+     */
     this.appendSlice = function(rhs)
     {
         // check input

@@ -42,41 +42,57 @@ dwv.gui.onChangeColourMap = function(/*event*/)
  */
 dwv.gui.onChangeLoader = function(/*event*/)
 {
+    if( this.value === "Data") {
+        /*dwv.gui.displayUrlLoadHtml(false);
+        dwv.gui.displayDeformationLoadHtml(false);
+        dwv.gui.displayParametricMapLoadHtml(false);
+        dwv.gui.displayFileLoadHtml(false);*/
+        dwv.gui.displayRoiFileLoadHtml(false);
+        dwv.gui.displayZipFileLoadHtml(true);
+    }
+    if (this.value === "ROI File"){
+        /*dwv.gui.displayUrlLoadHtml(false);
+        dwv.gui.displayFileLoadHtml(false);
+        dwv.gui.displayDeformationLoadHtml(false);
+        dwv.gui.displayParametricMapLoadHtml(false);*/
+        dwv.gui.displayZipFileLoadHtml(false);
+        dwv.gui.displayRoiFileLoadHtml(true);
+    }
+    /*
     if( this.value === "file") {
         dwv.gui.displayUrlLoadHtml(false);
         dwv.gui.displayDeformationLoadHtml(false);
         dwv.gui.displayParametricMapLoadHtml(false);
         dwv.gui.displayZipFileLoadHtml(false);
+        dwv.gui.displayRoiFileLoadHtml(false);
         dwv.gui.displayFileLoadHtml(true);
     }
-    if( this.value === "Zip File") {
-        dwv.gui.displayUrlLoadHtml(false);
-        dwv.gui.displayDeformationLoadHtml(false);
-        dwv.gui.displayParametricMapLoadHtml(false);
-        dwv.gui.displayFileLoadHtml(false);
-        dwv.gui.displayZipFileLoadHtml(true);
-    }
-    else if( this.value === "url") {
+
+    if( this.value === "url") {
         dwv.gui.displayFileLoadHtml(false);
         dwv.gui.displayDeformationLoadHtml(false);
         dwv.gui.displayParametricMapLoadHtml(false);
         dwv.gui.displayZipFileLoadHtml(false);
+        dwv.gui.displayRoiFileLoadHtml(false);
         dwv.gui.displayUrlLoadHtml(true);
     }
-    else if( this.value === "Deformation File") {
+    if( this.value === "Deformation File") {
         dwv.gui.displayUrlLoadHtml(false);
         dwv.gui.displayFileLoadHtml(false);
         dwv.gui.displayParametricMapLoadHtml(false);
         dwv.gui.displayZipFileLoadHtml(false);
+        dwv.gui.displayRoiFileLoadHtml(false);
         dwv.gui.displayDeformationLoadHtml(true);
     }
-    else if (this.value === "Parametric Map"){
+    if (this.value === "Parametric Map"){
         dwv.gui.displayUrlLoadHtml(false);
         dwv.gui.displayFileLoadHtml(false);
         dwv.gui.displayDeformationLoadHtml(false);
         dwv.gui.displayZipFileLoadHtml(false);
+        dwv.gui.displayRoiFileLoadHtml(false);
         dwv.gui.displayParametricMapLoadHtml(true);
     }
+    */
 };
 
 /**
@@ -124,6 +140,18 @@ dwv.gui.onChangeZipFile = function(event)
 {
     app.onChangeZipFile(event);
 };
+
+/**
+ * Handle roi file change.
+ * @method onChangeRoiFile
+ * @static
+ * @param {Object} event The change event.
+ */
+dwv.gui.onChangeRoiFile = function(event)
+{
+    app.onChangeRoiFile(event);
+};
+
 
 /**
  * Handle deformation file change.

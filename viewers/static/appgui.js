@@ -78,6 +78,16 @@ dwv.gui.displayZipFileLoadHtml = function(bool){
 };
 
 
+// ROI file loader
+dwv.gui.appendRoiFileLoadHtml = function(){
+    dwv.gui.base.appendRoiFileLoadHtml();
+};
+
+dwv.gui.displayRoiFileLoadHtml = function(bool){
+    dwv.gui.base.displayRoiFileLoadHtml(bool);
+};
+
+
 // Deformation field loader
 dwv.gui.appendDeformationLoadHtml = function(){
     dwv.gui.base.appendDeformationLoadHtml();

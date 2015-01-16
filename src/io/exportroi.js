@@ -21,6 +21,7 @@ dwv.io.ExportROI = function()
 {
     this.onsave = null;
     this.onerror = null;
+    this.onload = null;
     this.motilityDrawTool = null;
     this.medianDrawTool = null;
 };
@@ -42,6 +43,7 @@ dwv.io.ExportROI.MAXMAPS = 10;
  * Create an empty RoiCSVEntry
  */
 dwv.io.ExportROI.RoiCSVEntry = function(){
+    this.id = null;
     this.timepoint = null;
     this.type = null;
     this.colour = null;
@@ -60,6 +62,7 @@ dwv.io.ExportROI.RoiCSVEntry = function(){
 
     this.GenerateText = function (){
         var str = '';
+        str += this.id + ',';
         str += this.timepoint + ',';
         str += this.type + ',';
         str += this.colour + ',';
@@ -94,16 +97,101 @@ dwv.io.ExportROI.RoiCSVEntry = function(){
         return str;
 
     };
+
+    this.GenerateEntryFromTextLine = function(line) {
+        var c = 0;
+        var lineArr = line.split(',');
+        this.id = parseInt(lineArr[c++], 10);
+        this.timepoint = parseInt(lineArr[c++], 10);
+        this.type = lineArr[c++];
+        this.colour = lineArr[c++];
+        this.length = parseFloat(lineArr[c++]);
+        this.area = parseFloat(lineArr[c++]);
+        this.numberofpoints = parseInt(lineArr[c++], 10);
+        for (var i = 0; i < dwv.io.ExportROI.MAXMAPS; ++i)
+            this.parametricmapvalues[i] = parseFloat(lineArr[c++]);
+        for (var i = 0; i < dwv.io.ExportROI.MAXMAPS; ++i)
+            this.parametricmapnames[i] = parseFloat(lineArr[c++]);
+
+        for (var p = 0; p < this.numberofpoints; ++p) {
+            var slicePoint = [];
+            slicePoint.push(parseFloat(lineArr[c++]));
+            slicePoint.push(parseFloat(lineArr[c++]));
+            this.slicepoints.push(slicePoint);
+        }
+
+        for (var p = 0; p < this.numberofpoints; ++p) {
+            var realPoint = [];
+            realPoint.push(parseFloat(lineArr[c++]));
+            realPoint.push(parseFloat(lineArr[c++]));
+            realPoint.push(parseFloat(lineArr[c++]));
+            this.realpoints.push(realPoint);
+        }
+    }
+};
+
+
+/**
+ * Load ROIs from file
+ * @method load
+ * @param Blob file The file to load.
+ */
+
+dwv.io.ExportROI.prototype.load = function(file){
+    var onload = this.onload;
+    var onerror = this.onerror;
+
+    // Request error
+    var onErrorReader = function(event)
+    {
+        onerror( {'name': "RequestError",
+            'message': "An error occurred while reading the ROI file: "+event.getMessage() } );
+    };
+
+    // CSV reader loader
+    var onLoadReader = function(event)
+    {
+        // parse DICOM file
+        try {
+            var tmpdata = event.target.result;
+
+            // Load from text file
+            var lineArray = tmpdata.match(/[^\r\n]+/g);
+
+            // Process csv file
+            var csvEntries = [];
+            for (var i = 1; i < lineArray.length; ++i){
+                var csvE = new dwv.io.ExportROI.RoiCSVEntry();
+                csvE.GenerateEntryFromTextLine(lineArray[i]);
+                csvEntries.push(csvE);
+            }
+
+            // call listener
+            onload(csvEntries);
+        } catch(error) {
+            onerror(error);
+        }
+
+        var endEvent = {lengthComputable: true, loaded: 1, total: 1};
+        dwv.gui.updateProgress(endEvent);
+
+    };
+
+    var fr = new FileReader();
+    fr.onload = onLoadReader;
+    fr.onprogress = dwv.gui.updateProgress;
+    fr.onerror = onErrorReader;
+    fr.readAsText(file);
+
 };
 
 
 /**
  * Save ROIs to file
  * @method save
- * @param string filename The filename to save to.
  */
 
-dwv.io.ExportROI.prototype.save = function(filename)
+dwv.io.ExportROI.prototype.save = function()
 {
     // create closure to the onload method
     var onsave = this.onsave;
@@ -130,6 +218,7 @@ dwv.io.ExportROI.prototype.save = function(filename)
         for (var t = 0; t < noTimePoints; ++t){
 
             var entry = new dwv.io.ExportROI.RoiCSVEntry();
+            entry.id = roiEntries[r].id;
             entry.timepoint = t;
             entry.type = roiEntries[r].GetType();
             entry.colour = roiEntries[r].GetColour();
@@ -158,34 +247,7 @@ dwv.io.ExportROI.prototype.save = function(filename)
 
 
             RoiCSVEntryList.push(entry);
-            /*
-            if (roiEntries[r].GetType() == 'roi'){
-                var newROI = {
-                    points: [],
-                    colour: currentShape.stroke(),
-                    area: currentText.text(),
-                    paraValue: paraValue
-                };
-                for (var p = 0; p < currentShape.points().length; p+=2){
-                    var newPoint = app.imageToLPHCoords(currentShape.points()[p]-0.5,currentShape.points()[p+1]-0.5);
-                    newROI.points.push(newPoint);
-                }
-                allLayers[i].ROIs.push(newROI);
-            }
-            else{
-                var newLine = {
-                    points: [],
-                    colour: currentShape.stroke(),
-                    length: currentText.text(),
-                    paraValue: paraValue
-                };
-                for (var p = 0; p < currentShape.points().length; p+=2){
-                    var newPoint = app.imageToLPHCoords(currentShape.points()[p]-0.5,currentShape.points()[p+1]-0.5);
-                    newLine.points.push(newPoint);
-                }
-                allLayers[i].Lines.push(newLine);
-            }
-            */
+
         }
     }
 

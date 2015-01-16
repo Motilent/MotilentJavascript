@@ -75,6 +75,25 @@ dwv.tool.Scroll = function(app)
     };
 
     /**
+     * Handle mouse wheel event.
+     * @method mousewheel
+     * @param {Object} event The mouse wheel event.
+     */
+    this.mousewheel = function(event){
+        // ev.wheelDelta on chrome is 120
+        // update GUI
+        if( event.wheelDelta > 0 ) {
+            app.getView().incrementSliceNb();
+        }
+        else {
+            app.getView().decrementSliceNb();
+        }
+        // reset origin point
+        self.x0 = event._x;
+        self.y0 = event._y;
+    };
+
+    /**
      * Handle mouse up event.
      * @method mouseup
      * @param {Object} event The mouse up event.

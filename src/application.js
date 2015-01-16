@@ -17,7 +17,18 @@ dwv.App = function(type)
     // Local object
     var self = this;
 
+
     var appType = type;
+
+    /**
+     * Get the type of app
+     * @method GetType
+     * @return String The app type ('motility'/'median')
+     */
+    this.GetType = function(){
+        return appType;
+    };
+
     if (! (appType == 'motility' || appType == 'median'))
         throw "Unknown appType " + appType;
     var appExt = "";
@@ -26,6 +37,16 @@ dwv.App = function(type)
 
     // Image
     var image = null;
+
+    /**
+     * Get the image for this window
+     * @method GetImage
+     * @return The image
+     */
+
+    this.GetImage = function(){
+        return image;
+    };
     // View
     var view = null;
 
@@ -96,6 +117,27 @@ dwv.App = function(type)
     // Parametric map names
     var parametricMapNames = [];
 
+    // Median image defined by Temporal Position Identifier (0020,0100)
+    var medianImageTemporalPosition = null;
+
+    /**
+     * Set the median image defined by Temporal Position Identifier (0020,0100)
+     * @method SetMedianImageTemporalPosition
+     * @param number val The temporal position of the median image.
+     */
+    this.SetMedianImageTemporalPosition = function(val) {
+        this.medianImageTemporalPosition = val;
+    };
+
+    /**
+     * Get the median image defined by Temporal Position Identifier (0020,0100)
+     * @method GetMedianImageTemporalPosition
+     * @return number The temporal position of the median image.
+     */
+    this.GetMedianImageTemporalPosition = function() {
+        return this.medianImageTemporalPosition;
+    };
+
     // Image layer
     var imageLayer = null;
     // Draw layers
@@ -116,7 +158,7 @@ dwv.App = function(type)
      * @method getVersion
      * @return {String} The version of the application.
      */
-    this.getVersion = function() { return "v0.1"; };
+    this.getVersion = function() { return "v1.1"; };
 
 
     /**
@@ -321,6 +363,7 @@ dwv.App = function(type)
             undoStack = new dwv.tool.UndoStack();
             dwv.gui.cleanUndoHtml();
         }
+
         // clear draw
         if ( drawStage ) {
             drawLayers = [];
@@ -334,7 +377,11 @@ dwv.App = function(type)
         parametricMapData = [];
         parametricMapNames = [];
         currentParametricMap = null;
+        medianImageTemporalPosition = null;
         dwv.gui.appendParametricMapSelector();
+        if (appType == 'median'){
+            dwv.gui.appendParametricMap('Off');
+        }
     };
     
     /**
@@ -449,6 +496,16 @@ dwv.App = function(type)
         this.loadZipFile(event.target.files[0]);
     };
 
+    /**
+     * Handle change roi file event.
+     * @method onChangeRoiFile
+     * @param {Object} event The event fired when changing the file field.
+     */
+    this.onChangeRoiFile = function(event)
+    {
+        this.loadRoiFile(event.target.files[0]);
+    };
+
 
     /**
      * Handle deformation files change.
@@ -478,7 +535,7 @@ dwv.App = function(type)
      */
     this.onExportRois = function(){
         var fileIO = new dwv.io.ExportROI();
-        fileIO.save("ROIs.csv");
+        fileIO.save();
     };
 
     /**
@@ -488,7 +545,7 @@ dwv.App = function(type)
      */
     this.processImageData = function(data){
         var isFirst = true;
-
+        var isMedianImage = data.view.getImage().getTemporalPositions()[0] == app.GetMedianImageTemporalPosition();
         if( image ) {
             image.appendSlice( data.view.getImage() );
             isFirst = false;
@@ -497,7 +554,7 @@ dwv.App = function(type)
                 deffField.SetRows(image.getNumberOfRows());
             }
         }
-        if (image && image.getSize().getNumberOfSlices() == 15){
+        if (image && isMedianImage){
             medianViewer.postLoadInit(data);
             if( medianViewer.getDrawStage() ) {
                 // create slice draw layer
@@ -565,7 +622,19 @@ dwv.App = function(type)
         this.reset();
         medianViewer.reset();
 
+        var dialog1 = $('#loadingdialog').dialog({
+            autoOpen: true,
+            modal:true,
+            height: 200,
+            width: 200,
+            dialogClass: "no-close"
+        });
+        dialog1.empty();
+        var text = $('<h1>').text('Loading').css('margin-left', 'auto').css('margin-right', 'auto').css('width', '70%');
+        text.appendTo(dialog1);
+
         var zipIO = new dwv.io.ZipFile();
+        zipIO.onloadConfigfile = this.processConfigFile;
         zipIO.onloadDICOM = this.processImageData;
         zipIO.onerror = function(error){
             handleError(error);
@@ -574,7 +643,92 @@ dwv.App = function(type)
         zipIO.onloadParametric = medianViewer.processParametricData;
 
         zipIO.load(file);
+    };
+    /**
+     * Load a roi file.
+     * @method loadRoiFile
+     * @param Blob file The file to load.
+     */
+    this.loadRoiFile = function(file){
+        if (roiRecord)
+            roiRecord.RemoveAllEntries();
+        else
+            return;
 
+        this.CreateRoiRecord();
+
+        var roiIO = new dwv.io.ExportROI();
+        roiIO.onerror = function(error){
+            handleError(error);
+        };
+        roiIO.onload = function(roiEs){
+            console.log(roiEs);
+            if (self.GetImage()) {
+
+                var temporalPositions = self.GetImage().getTemporalPositions();
+                var medianIndex = null;
+                for (var t = 0; t < temporalPositions.length; ++t) {
+                    if (temporalPositions[t] == self.GetMedianImageTemporalPosition())
+                        medianIndex = t;
+                }
+                if (medianIndex == null)
+                    return;
+
+                // Iterate through entries and find only those that correspond to the median image
+                for (var r = 0; r < roiEs.length; ++r) {
+                    if (roiEs[r].timepoint == medianIndex) {
+                        var roi = null;
+                        var shape = null;
+
+
+                        if (roiEs[r].type == 'roi') {
+                            roi = new dwv.math.ROI();
+                            var points = [];
+                            for (var p = 0; p < roiEs[r].slicepoints.length; ++p) {
+                                points.push(new dwv.math.Point2D(roiEs[r].slicepoints[p][0],
+                                    roiEs[r].slicepoints[p][1]));
+                            }
+                            roi.addPoints(points);
+                            shape = dwv.roi.GetShapeFromRoi(roi, roiEs[r].colour, medianViewer);
+                        }
+                        else {
+                            var pointA = new dwv.math.Point2D(roiEs[r].slicepoints[0][0],
+                                roiEs[r].slicepoints[0][1]);
+                            var pointB = new dwv.math.Point2D(roiEs[r].slicepoints[1][0],
+                                roiEs[r].slicepoints[1][1]);
+                            roi = new dwv.math.Line(pointA, pointB);
+                            shape = dwv.roi.GetShapeFromLine(roi, roiEs[r].colour, medianViewer);
+                        }
+
+                        var shapeGroup = new Kinetic.Group();
+                        shapeGroup.add(shape.shape);
+                        shapeGroup.add(shape.text);
+
+                        var destinationLayer = medianViewer.getDrawLayers()[0];
+                        destinationLayer.add(shapeGroup);
+                        destinationLayer.draw();
+
+                        medianViewer.GetDrawTool().addToCreatedShapes(shape);
+
+
+                        app.GetRoiRecord().AddRoiEntry(roiEs[r].type, roiEs[r].colour, roi, shape, roiEs[r].id);
+
+                    }
+                }
+            }
+        };
+        roiIO.load(file);
+
+    };
+
+    /**
+     * Handle processing of text from config file
+     * @method processConfigFile
+     * @param data Object Parametric map reader data object
+     */
+    this.processConfigFile = function(text){
+        app.SetMedianImageTemporalPosition(parseInt(text,10));
+        medianViewer.SetMedianImageTemporalPosition(parseInt(text,10));
     };
 
 
@@ -633,7 +787,7 @@ dwv.App = function(type)
         newLayer.setImageData(data.GetImageData());
 
         for (var i = 0; i < parametricMapLayers.length; ++i){
-            parametricMapLayers[i].setStyleDisplay(false);
+            parametricMapLayers[i].setStyleDisplay(true);
         }
         parametricMapLayers[currentParametricMap].setStyleDisplay(true);
         parametricMapLayers[currentParametricMap].draw();
@@ -662,7 +816,7 @@ dwv.App = function(type)
     /**
      * Change the currently displayed parametric map
      * @method ChangeParametricMap
-     * @param Number mapNumber The number of the parametric map
+     * @param Number mapNumber The number of the parametric map (set to -1 for off)
      */
     this.ChangeParametricMap = function(mapNumber){
         if (mapNumber < parametricMapLayers.length){
@@ -670,8 +824,11 @@ dwv.App = function(type)
             for (var i = 0; i < parametricMapLayers.length; ++i){
                 parametricMapLayers[i].setStyleDisplay(false);
             }
-            parametricMapLayers[mapNumber].setStyleDisplay(true);
-            parametricMapLayers[mapNumber].draw();
+
+            if (mapNumber >= 0) {
+                parametricMapLayers[mapNumber].setStyleDisplay(true);
+                parametricMapLayers[mapNumber].draw();
+            }
         }
     };
 
@@ -820,7 +977,9 @@ dwv.App = function(type)
             parametricMapLayers[i].setWidth(newWidth);
             parametricMapLayers[i].setHeight(newHeight);
             parametricMapLayers[i].zoom(iZoomX, iZoomY, 0, 0);
-            parametricMapLayers[i].draw();
+        }
+        if (parametricMapLayers.length > 0){
+            parametricMapLayers[self.GetCurrentParametricMap()].draw();
         }
         // resize draw stage
         if( drawStage ) {
@@ -835,6 +994,7 @@ dwv.App = function(type)
             drawStage.scale( {x: stageZomX, y: stageZoomY} );
             drawStage.draw();
         }
+
     };
     
     /**

@@ -122,6 +122,18 @@ dwv.gui.base.appendWindowLevelHtml = function()
     // append color map
     node.appendChild(cmLi);
 
+    var button = document.createElement("button");
+    button.id = "wlresetbutton"
+    button.style.class = "toolbutton";
+    button.style.display = "none";
+    button.appendChild(document.createTextNode("Reset windowing"));
+    node.appendChild(button);
+    button.onclick = function(){
+        app.initWLDisplay()
+        medianViewer.initWLDisplay();
+    };
+
+
     // trigger create event (mobile)
     $("#toolList").trigger("create");
 };
@@ -138,6 +150,8 @@ dwv.gui.base.displayWindowLevelHtml = function(bool)
     //dwv.html.displayElement("wlLi", bool);
     // color map list element
     //dwv.html.displayElement("cmLi", bool);
+    dwv.html.displayElement("wlresetbutton", bool);
+
 };
 
 /**
@@ -402,7 +416,12 @@ dwv.gui.base.appendParametricMapSelector = function()
     select.id = "parametricmapselector";
     select.name = "parametricmapselector";
     select.onchange = function(){
-        medianViewer.ChangeParametricMap(this.selectedIndex);
+        // Turn off parametric maps
+        if (this.selectedIndex == 0){
+            medianViewer.ChangeParametricMap(-1);
+        }
+        else
+            medianViewer.ChangeParametricMap(this.selectedIndex-1);
     };
     node.appendChild(select);
     $("#roirecords").trigger("create");

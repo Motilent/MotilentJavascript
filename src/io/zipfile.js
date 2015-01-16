@@ -17,6 +17,7 @@ dwv.io.ZipFile = function()
     this.onloadDICOM = null;
     this.onloadParametric = null;
     this.onloadDeformation = null;
+    this.onloadConfigfile = null;
 };
 
 /**
@@ -30,7 +31,37 @@ dwv.io.ZipFile.prototype.load = function(file)
     var onloadDICOM = this.onloadDICOM;
     var onloadParametric = this.onloadParametric;
     var onloadDeformation = this.onloadDeformation;
+    var onloadConfigfile = this.onloadConfigfile;
     var onerror = this.onerror;
+
+
+    // config error
+    var onErrorConfigReader = function(event)
+    {
+        onerror( {'name': "RequestError",
+            'message': "An error occurred while reading the config file: "+event.getMessage() } );
+    };
+
+    // config reader loader
+    var onLoadConfigReader = function(event)
+    {
+        // parse text file
+        try {
+            var tmpdata = event.target.result;
+            // call listener
+            onloadConfigfile(tmpdata);
+        } catch(error) {
+            onerror(error);
+        }
+        // force 100% progress (sometimes with firefox)
+        var endEvent = {lengthComputable: true, loaded: 1, total: 1};
+        //dwv.gui.updateProgress(endEvent);
+
+        if (++configLoadCount == configEntries.length){
+            self.loadDicomEntries();
+        }
+
+    };
 
     // Request error
     var onErrorDicomReader = function(event)
@@ -109,21 +140,38 @@ dwv.io.ZipFile.prototype.load = function(file)
         var endEvent = {lengthComputable: true, loaded: 1, total: 1};
         if (++deformationLoadCount == deformationFieldEntries.length){
             dwv.gui.updateProgress(endEvent);
-            alert("File loaded");
+            $('#loadingdialog').dialog("close");
         }
         //dwv.gui.updateProgress(endEvent);
     };
 
     // Create file bins for DICOM files, deformation field, and parametric maps
+    var configEntries = []
     var dicomEntries = [];
     var parametricMapEntries = [];
     var deformationFieldEntries = [];
 
+    var configLoadCount = 0;
     var dicomLoadCount = 0;
     var parametricLoadCount = 0;
     var deformationLoadCount = 0;
 
     var self = this;
+
+
+    this.loadConfigFileEntries = function(){
+        for (var i = 0; i < configEntries.length; ++i) {
+            configEntries[i].getData(new zip.BlobWriter(), function(file){
+                var fr = new FileReader();
+                fr.onload = onLoadConfigReader;
+                fr.onprogress = dwv.gui.updateProgress;
+                fr.onerror = onErrorConfigReader;
+                fr.readAsText(file);
+            }, function(current, total) {
+
+            });
+        }
+    };
 
     this.loadDicomEntries = function(){
         for (var i = 0; i < dicomEntries.length; ++i) {
@@ -167,7 +215,7 @@ dwv.io.ZipFile.prototype.load = function(file)
         }
     };
 
-    zip.loadDicomEntries = this.loadDicomEntries;
+    zip.loadConfigFileEntries = this.loadConfigFileEntries;
     // use a BlobReader to read the zip from a Blob object
     zip.createReader(new zip.BlobReader(file), function(reader) {
 
@@ -186,10 +234,13 @@ dwv.io.ZipFile.prototype.load = function(file)
                     else if (entries[i].filename.match(/^defor/i)){
                         deformationFieldEntries.push(entries[i]);
                     }
+                    else if (entries[i].filename.match(/^config/i)){
+                        configEntries.push(entries[i]);
+                    }
                 }
+                // First process config files
+                zip.loadConfigFileEntries();
 
-                // First process dicom files
-                zip.loadDicomEntries();
 
                 // Now process parametric map files
 

@@ -13,7 +13,7 @@ $(document).ready( function()
 {
     // Setup zip library
     zip.workerScriptsPath = '/motilentjavascript/ext/zipjs/';
-
+    $("#progressbar").hide();
 
     $("#toggleInfoLayer").button({ icons: 
         { primary: "ui-icon-comment" }, text: false });
@@ -125,7 +125,7 @@ $(document).ready( function()
     dwv.tool.shapes = {};
     dwv.tool.shapes.line = dwv.tool.LineCreator;
     //dwv.tool.shapes.rectangle = dwv.tool.RectangleCreator;
-    dwv.tool.shapes.roi = dwv.tool.RoiCreator;
+    dwv.tool.shapes.poly = dwv.tool.RoiCreator;
     //dwv.tool.shapes.ellipse = dwv.tool.EllipseCreator;
 
     // append tool container HTML

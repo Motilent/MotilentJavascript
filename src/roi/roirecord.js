@@ -233,7 +233,7 @@ dwv.roi.RoiEntry = function(id, type, colour, medianRoi, motilityRoiList, median
             }
         }
 
-        if (type == 'roi') {
+        if (type == 'poly') {
             medianRoi = new dwv.math.ROI();
             medianRoi.addPoints(pointArr);
             dwv.roi.UpdateShapeFromRoi(medianRoi, medianShape, medianViewer);
@@ -281,7 +281,7 @@ dwv.roi.RoiEntry = function(id, type, colour, medianRoi, motilityRoiList, median
         for (var i =0; i < newPoints.length; i+=2)
             pointArr.push(new dwv.math.Point2D(newPoints[i],newPoints[i+1]));
 
-        if (type == 'roi') {
+        if (type == 'poly') {
             var currentSlice = app.GetCurrentSlice();
             motilityRoiList[currentSlice] = new dwv.math.ROI();
             motilityRoiList[currentSlice].addPoints(pointArr);

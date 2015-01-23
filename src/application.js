@@ -72,6 +72,17 @@ dwv.App = function(type)
         return dataHeight;
     };
 
+    var patientID = null;
+    var studyID = null;
+
+    this.GetPatientID = function(){
+        return patientID;
+    };
+    this.GetStudyID = function() {
+        return studyID;
+    };
+
+
     var paraWidth = 0;
     var paraHeight = 0;
     var paraMul = 0;
@@ -158,7 +169,7 @@ dwv.App = function(type)
      * @method getVersion
      * @return {String} The version of the application.
      */
-    this.getVersion = function() { return "v1.1"; };
+    this.getVersion = function() { return "v1.11"; };
 
 
     /**
@@ -373,6 +384,8 @@ dwv.App = function(type)
         view = null;
         info = null;
         deffField = null;
+        patientID = null;
+        studyID = null;
         parametricMapLayers = [];
         parametricMapData = [];
         parametricMapNames = [];
@@ -535,7 +548,9 @@ dwv.App = function(type)
      */
     this.onExportRois = function(){
         var fileIO = new dwv.io.ExportROI();
-        fileIO.save();
+
+
+        fileIO.save(self.GetPatientID().value[0].replace(/\W/g, '') + '_' + self.GetStudyID().value[0].replace(/\W/g, ''));
     };
 
     /**
@@ -546,6 +561,9 @@ dwv.App = function(type)
     this.processImageData = function(data){
         var isFirst = true;
         var isMedianImage = data.view.getImage().getTemporalPositions()[0] == app.GetMedianImageTemporalPosition();
+        patientID = data.info.PatientID;
+        studyID = data.info.StudyID;
+
         if( image ) {
             image.appendSlice( data.view.getImage() );
             isFirst = false;
@@ -681,7 +699,7 @@ dwv.App = function(type)
                         var shape = null;
 
 
-                        if (roiEs[r].type == 'roi') {
+                        if (roiEs[r].type == 'poly') {
                             roi = new dwv.math.ROI();
                             var points = [];
                             for (var p = 0; p < roiEs[r].slicepoints.length; ++p) {

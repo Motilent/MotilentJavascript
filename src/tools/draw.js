@@ -419,7 +419,7 @@ dwv.tool.Draw = function (app)
             // Determine if shape draw type is draggable or clickable
             if (self.shapeName == 'line')
                 clickTypeShape = false;
-            else if (self.shapeName == 'roi')
+            else if (self.shapeName == 'poly')
                 clickTypeShape = true;
             else
                 clickTypeShape = false;

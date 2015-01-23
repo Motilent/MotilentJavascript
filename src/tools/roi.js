@@ -25,7 +25,7 @@ dwv.tool.RoiCreator = function (points, style, image, finished)
 
     var shape = dwv.roi.GetShapeFromRoi(roi, style.getLineColor(), interactionApp);
     if (finished){
-        app.GetRoiRecord().AddRoiEntry('roi', style.getLineColor(), roi, shape);
+        app.GetRoiRecord().AddRoiEntry('poly', style.getLineColor(), roi, shape);
     }
 
     // return shape

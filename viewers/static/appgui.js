@@ -153,7 +153,7 @@ dwv.gui.appendToolboxHtml = function(){
     image.onclick = function() { toggle("#layerDialog"); };
 
     var image_med = document.createElement("button");
-    image_med.appendChild(document.createTextNode("Median Image"));
+    image_med.appendChild(document.createTextNode("Annotation Image"));
     image_med.onclick = function() { toggle("#layerDialog_med"); };
 
     var info = document.createElement("button");

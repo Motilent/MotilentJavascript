@@ -67,7 +67,7 @@ dwv.io.ExportROI.RoiCSVEntry = function(){
         str += this.type + ',';
         str += this.colour + ',';
 
-        if (this.type == 'roi') {
+        if (this.type == 'poly') {
             str += ',';
             str += this.area + ',';
         }
@@ -189,9 +189,10 @@ dwv.io.ExportROI.prototype.load = function(file){
 /**
  * Save ROIs to file
  * @method save
+ * @param String fileid The id of the patient (and also the filename)
  */
 
-dwv.io.ExportROI.prototype.save = function()
+dwv.io.ExportROI.prototype.save = function(fileid)
 {
     // create closure to the onload method
     var onsave = this.onsave;
@@ -253,12 +254,12 @@ dwv.io.ExportROI.prototype.save = function()
 
 
     // Now create csv file
-    var output = 'Timepoint,Type,Colour,Length,Area,Number of Points,Mean Parametric Map Values,,,,,,,,,,Parametric Map Names,,,,,,,,,,Points\n';
+    var output = 'ROI ID,Timepoint,Type,Colour,Length,Area,Number of Points,Mean Parametric Map Values,,,,,,,,,,Parametric Map Names,,,,,,,,,,Points\n';
     for (var i = 0; i < RoiCSVEntryList.length; ++i) {
         output += RoiCSVEntryList[i].GenerateText();
     }
 
     var blob = new Blob([output], {type: "text/plain;charset=utf-8"});
-    saveAs(blob, "ROIs.csv");
+    saveAs(blob, fileid+ '.csv');
 
 };

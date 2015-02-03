@@ -119,6 +119,13 @@ dwv.App = function(type)
         return currentParametricMap;
     };
 
+
+    var currentZipFileName = null;
+
+    this.GetCurrentZipFileName = function(){
+        return currentZipFileName;
+    };
+
     // Parametric map layer
     var parametricMapLayers = [];
 
@@ -169,7 +176,7 @@ dwv.App = function(type)
      * @method getVersion
      * @return {String} The version of the application.
      */
-    this.getVersion = function() { return "v1.11"; };
+    this.getVersion = function() { return "v1.12"; };
 
 
     /**
@@ -391,6 +398,7 @@ dwv.App = function(type)
         parametricMapNames = [];
         currentParametricMap = null;
         medianImageTemporalPosition = null;
+        currentZipFileName = null;
         dwv.gui.appendParametricMapSelector();
         if (appType == 'median'){
             dwv.gui.appendParametricMap('Off');
@@ -549,8 +557,11 @@ dwv.App = function(type)
     this.onExportRois = function(){
         var fileIO = new dwv.io.ExportROI();
 
-
-        fileIO.save(self.GetPatientID().value[0].replace(/\W/g, '') + '_' + self.GetStudyID().value[0].replace(/\W/g, ''));
+        // Save roi file using filename prefix from zip file
+        var pre = currentZipFileName.substr(0,currentZipFileName.lastIndexOf('.')) + '_ROI_Data';
+        fileIO.save(pre);
+        // Save roi file using patientID and studyID from DICOM field
+        //fileIO.save(self.GetPatientID().value[0].replace(/\W/g, '') + '_' + self.GetStudyID().value[0].replace(/\W/g, ''));
     };
 
     /**
@@ -639,6 +650,8 @@ dwv.App = function(type)
         currentParametricMap = null;
         this.reset();
         medianViewer.reset();
+
+        currentZipFileName = file.name;
 
         var dialog1 = $('#loadingdialog').dialog({
             autoOpen: true,

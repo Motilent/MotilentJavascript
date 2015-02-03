@@ -201,6 +201,24 @@ dwv.tool.Draw = function (app)
      * @type Boolean
      */
     var justStarted = true;
+
+    /**
+     * Interaction start middle mouse flag.
+     * @property startedMiddleMouse
+     * @private
+     * @type Boolean
+     */
+    var startedMiddleMouse = false;
+
+    /**
+     * Interaction start middle mouse flag last Y pos.
+     * @property lastMiddleTickYPos
+     * @private
+     * @type Number
+     */
+    var lastMiddleTickYPos = null;
+
+
     
     /**
      * Draw command.
@@ -376,6 +394,14 @@ dwv.tool.Draw = function (app)
      * @param {Object} event The mouse down event.
      */
     this.mousedown = function(event){
+
+        // If middle mouse just set the flag and exit
+        if (event.button == 1) {
+            startedMiddleMouse = true;
+            lastMiddleTickYPos = event._y;
+            return;
+        }
+
         // determine if the click happened in an existing shape
         var stage = app.getDrawStage();
         var kshape = stage.getIntersection({
@@ -436,6 +462,15 @@ dwv.tool.Draw = function (app)
      * @param {Object} event The mouse move event.
      */
     this.mousemove = function(event){
+        // If middle mouse and flag set
+        if (startedMiddleMouse == true && Math.abs( event._y - lastMiddleTickYPos)  > 10) {
+            if (event._y - lastMiddleTickYPos < 0)
+                app.getView().incrementSliceNb();
+            else
+                app.getView().decrementSliceNb();
+            lastMiddleTickYPos = event._y;
+        }
+
         if (!started)
         {
             return;
@@ -498,7 +533,14 @@ dwv.tool.Draw = function (app)
      * @method mouseup
      * @param {Object} event The mouse up event.
      */
-    this.mouseup = function (/*event*/){
+    this.mouseup = function (event){
+
+        // If middle mouse just set the flag and exit
+        if (event.button == 1) {
+            startedMiddleMouse = false;
+            return;
+        }
+
         if (clickTypeShape)
             return;
         if (started && points.length > 1 )
@@ -582,7 +624,10 @@ dwv.tool.Draw = function (app)
      * @param {Object} event The mouse out event.
      */
     this.mouseout = function(event){
-        self.mouseup(event);
+        if (event.button != 1) {
+            startedMiddleMouse = false;
+            self.mouseup(event);
+        }
     };
 
     /**

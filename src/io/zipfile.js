@@ -229,16 +229,16 @@ dwv.io.ZipFile.prototype.load = function(file)
 
                 var i = 0;
                 for (i = 0; i < entries.length; ++i){
-                    if (entries[i].filename.match(/^dicom/i)){
+                    if (entries[i].filename.match(/^dicom.*[^/\\]$/i)){
                         dicomEntries.push(entries[i]);
                     }
-                    else if (entries[i].filename.match(/^para/i)){
+                    else if (entries[i].filename.match(/^para.*[^/\\]$/i)){
                         parametricMapEntries.push(entries[i]);
                     }
-                    else if (entries[i].filename.match(/^defor/i)){
+                    else if (entries[i].filename.match(/^defor.*[^/\\]$/i)){
                         deformationFieldEntries.push(entries[i]);
                     }
-                    else if (entries[i].filename.match(/^config/i)){
+                    else if (entries[i].filename.match(/^config.*[^/\\]$/i)){
                         configEntries.push(entries[i]);
                     }
                 }

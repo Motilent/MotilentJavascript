@@ -176,7 +176,7 @@ dwv.App = function(type)
      * @method getVersion
      * @return {String} The version of the application.
      */
-    this.getVersion = function() { return "v1.12"; };
+    this.getVersion = function() { return "v1.13"; };
 
 
     /**

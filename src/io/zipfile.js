@@ -18,6 +18,8 @@ dwv.io.ZipFile = function()
     this.onloadParametric = null;
     this.onloadDeformation = null;
     this.onloadConfigfile = null;
+    this.onloadMedianIdFile = null;
+    this.onloadFileIdsFile = null;
 };
 
 /**
@@ -32,6 +34,8 @@ dwv.io.ZipFile.prototype.load = function(file)
     var onloadParametric = this.onloadParametric;
     var onloadDeformation = this.onloadDeformation;
     var onloadConfigfile = this.onloadConfigfile;
+    var onloadMedianIdFile = this.onloadMedianIdFile;
+    var onloadFileIdsFile = this.onloadFileIdsFile;
     var onerror = this.onerror;
 
 
@@ -43,13 +47,21 @@ dwv.io.ZipFile.prototype.load = function(file)
     };
 
     // config reader loader
-    var onLoadConfigReader = function(event)
+    var onLoadConfigReader = function(event, filename)
     {
+        console.log(filename);
         // parse text file
         try {
             var tmpdata = event.target.result;
             // call listener
-            onloadConfigfile(tmpdata);
+
+            if (filename.filename.match(/fileids/i)){
+                onloadFileIdsFile(tmpdata);
+            }
+            else if (filename.filename.match(/medianid/i)) {
+                onloadMedianIdFile(tmpdata);
+            }
+            //onloadConfigfile(tmpdata);
         } catch(error) {
             onerror(error);
         }
@@ -160,21 +172,32 @@ dwv.io.ZipFile.prototype.load = function(file)
 
 
     this.loadConfigFileEntries = function(){
-        if (configEntries.length != 1){
-            throw "Median image temporal position config file does not exist";
+        if (configEntries.length != 2){
+            throw "Need fileids and medianid";
             return;
         }
+
         for (var i = 0; i < configEntries.length; ++i) {
-            configEntries[i].getData(new zip.BlobWriter(), function(file){
-                var fr = new FileReader();
-                fr.onload = onLoadConfigReader;
-                fr.onprogress = dwv.gui.updateProgress;
-                fr.onerror = onErrorConfigReader;
-                fr.readAsText(file);
-            }, function(current, total) {
+            configEntries[i].getData(new zip.BlobWriter(),
+                (function(configE){
+                    return function(file){
+                        var fr = new FileReader();
+
+                        fr.onload = (function(config){
+                            return function(evt){
+                                onLoadConfigReader(evt, config);
+                            }
+                        })(configE);
+                        fr.onprogress = dwv.gui.updateProgress;
+                        fr.onerror = onErrorConfigReader;
+                        fr.readAsText(file);
+                    }
+                })(configEntries[i])
+            , function(current, total) {
 
             });
         }
+
     };
 
     this.loadDicomEntries = function(){

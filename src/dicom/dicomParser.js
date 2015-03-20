@@ -643,6 +643,17 @@ dwv.dicom.DicomParser.prototype.createImage = function()
     if( this.dicomElements.TemporalPositionIdentifier ) {
         temporalPosition = parseFloat(this.dicomElements.TemporalPositionIdentifier.value[0]);
     }
+    if( this.dicomElements.SOPInstanceUID ) {
+        var uid = this.dicomElements.SOPInstanceUID.value[0];
+
+        var fileOrder = app.GetFileIdOrder();
+
+        for (var i = 0; i < fileOrder.length; ++i){
+            if (uid == fileOrder[i])
+            temporalPosition = i;
+        }
+
+    }
     
     // image
     var image = new dwv.image.Image( size, spacing, buffer, [slicePosition], [temporalPosition] );

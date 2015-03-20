@@ -147,6 +147,30 @@ dwv.App = function(type)
         this.medianImageTemporalPosition = val;
     };
 
+    var medianImageFileId = null;
+
+    this.SetMedianImageFileId = function(val) {
+        this.medianImageTemporalPosition = val;
+    };
+
+    this.GetMedianImageFileId = function(val) {
+        return this.medianImageTemporalPosition;
+    };
+
+    var fileIdOrder = [];
+    this.SetFileIdOrder = function(arr) {
+        for (var i = 0; i < arr.length; ++i) {
+            if (arr[i] == "") {
+                arr.splice(i, 1);
+                i--;
+            }
+        }
+        fileIdOrder = arr;
+    };
+    this.GetFileIdOrder = function() {
+        return fileIdOrder
+    };
+
     /**
      * Get the median image defined by Temporal Position Identifier (0020,0100)
      * @method GetMedianImageTemporalPosition
@@ -176,7 +200,7 @@ dwv.App = function(type)
      * @method getVersion
      * @return {String} The version of the application.
      */
-    this.getVersion = function() { return "v1.13"; };
+    this.getVersion = function() { return "v1.14"; };
 
 
     /**
@@ -666,6 +690,9 @@ dwv.App = function(type)
 
         var zipIO = new dwv.io.ZipFile();
         zipIO.onloadConfigfile = this.processConfigFile;
+        zipIO.onloadMedianIdFile = this.processMedianIdFile;
+        zipIO.onloadFileIdsFile = this.processFileIdsFile;
+
         zipIO.onloadDICOM = this.processImageData;
         zipIO.onerror = function(error){
             handleError(error);
@@ -755,12 +782,35 @@ dwv.App = function(type)
     /**
      * Handle processing of text from config file
      * @method processConfigFile
-     * @param data Object Parametric map reader data object
+     * @param data String config file
      */
     this.processConfigFile = function(text){
         app.SetMedianImageTemporalPosition(parseInt(text,10));
         medianViewer.SetMedianImageTemporalPosition(parseInt(text,10));
     };
+
+
+    /**
+     * Handle processing of text from median ID
+     * @method processMedianIdFile
+     * @param data String  median ID file
+     */
+    this.processMedianIdFile = function(text){
+        app.SetMedianImageFileId(text.trim());
+        medianViewer.SetMedianImageFileId(text.trim());
+    };
+
+    /**
+     * Handle processing of text from File Ids
+     * @method processFileIdsFile
+     * @param data String  file IDs file
+     */
+    this.processFileIdsFile = function(text){
+        var res = text.replace( /\n/g, " " ).split( " " );
+        app.SetFileIdOrder(res);
+        medianViewer.SetFileIdOrder(res);
+    };
+
 
 
     /**

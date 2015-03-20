@@ -160,6 +160,10 @@ dwv.io.ZipFile.prototype.load = function(file)
 
 
     this.loadConfigFileEntries = function(){
+        if (configEntries.length != 1){
+            throw "Median image temporal position config file does not exist";
+            return;
+        }
         for (var i = 0; i < configEntries.length; ++i) {
             configEntries[i].getData(new zip.BlobWriter(), function(file){
                 var fr = new FileReader();

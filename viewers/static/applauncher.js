@@ -12,7 +12,7 @@ var medianViewer = new dwv.App('median');
 $(document).ready( function()
 {
     // Setup zip library
-    zip.workerScriptsPath = '/motilentjavascript/ext/zipjs/';
+    zip.workerScriptsPath = '../../ext/zipjs/';
     $("#progressbar").hide();
 
     $("#toggleInfoLayer").button({ icons: 
